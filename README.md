@@ -1,4 +1,4 @@
-# Project Title
+# node-clean-arch v1
 
 ## Table of Contents
 + [About](#about)
