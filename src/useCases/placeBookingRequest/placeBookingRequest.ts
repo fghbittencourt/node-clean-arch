@@ -7,8 +7,6 @@ export interface PlaceBookingRequestInput extends UseCaseInput {
 }
 
 export default class PlaceBookingRequest implements UseCaseSync {
-  constructor() {} // public readonly repository: BookingRepository // @inject('BookingRepository')
-
   async execute(input: PlaceBookingRequestInput): Promise<UseCaseOutput> {
     // 1 - Gera uma nova BookingRequest
     // 2 - Persiste a BookingRequest no banco
