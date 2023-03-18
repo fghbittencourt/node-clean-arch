@@ -4,10 +4,7 @@ export default {
   coverageDirectory: 'coverage',
   coverageProvider: 'v8',
   preset: 'ts-jest',
-  coveragePathIgnorePatterns: [
-    'node_modules/',
-    'tests/'
-  ],
+  coveragePathIgnorePatterns: ['node_modules/', 'tests/'],
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   transformIgnorePatterns: [],
   testMatch: ['**/tests/unit/**/*.test.ts'],

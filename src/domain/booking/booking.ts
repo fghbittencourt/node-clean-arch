@@ -12,7 +12,6 @@ export default class Booking {
   bookingId: string;
 
   async confirmBooking(): Promise<void> {
-    if (!this.confirmed)
-      this.confirmed = true;
+    if (!this.confirmed) this.confirmed = true;
   }
 }
