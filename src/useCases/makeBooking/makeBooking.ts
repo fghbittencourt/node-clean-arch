@@ -1,4 +1,4 @@
-import { inject } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { v4 as uuidv4 } from 'uuid';
 import Booking from '../../domain/booking/booking';
 import BookingRepository from '../../domain/booking/bookingRepository';
@@ -20,24 +20,14 @@ export interface MakeBookingOutput extends UseCaseOutput {
   bookingId: string;
 }
 
+@injectable()
 export default class MakeBooking implements UseCaseSync {
   constructor(
-    @inject('BookingRepository')
-    public readonly repository: BookingRepository,
-    @inject('Sender')
-    public readonly sender: Sender
+    @inject('BookingRepository') public readonly repository: BookingRepository,
+    @inject('Sender') public readonly sender: Sender
   ) {}
 
   async execute(input: MakeBookingInput): Promise<UseCaseOutput> {
-    // Valida regras de negócio do input
-    if (input.date <= new Date()) {
-      throw new Error('Date should be in the future');
-    }
-
-    if (input.passengers[0].name === 'teste') {
-      throw new Error('Nome inválido');
-    }
-
     try {
       // Cria o objeto de domínio
       const booking = new Booking(
