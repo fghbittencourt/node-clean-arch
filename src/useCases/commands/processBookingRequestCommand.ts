@@ -6,9 +6,9 @@ type MakeFlightReservationCommandPassenger = {
 };
 
 export default class MakeFlightReservationCommand extends Command {
-  queueName = process.env.QUEUE_FLIGHT_RESERVATION!;
+  readonly queueName = process.env.QUEUE_FLIGHT_RESERVATION!;
 
-  commandName = 'MakeFlightReservationCommand';
+  readonly commandName = 'MakeFlightReservationCommand';
 
   constructor(
     bookingId: string,
