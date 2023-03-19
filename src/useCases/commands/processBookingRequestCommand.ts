@@ -6,7 +6,7 @@ type MakeFlightReservationCommandPassenger = {
 };
 
 export default class MakeFlightReservationCommand extends Command {
-  queueName = process.env.TOPIC_INCREMENT!;
+  queueName = process.env.QUEUE_FLIGHT_RESERVATION!;
 
   commandName = 'MakeFlightReservationCommand';
 

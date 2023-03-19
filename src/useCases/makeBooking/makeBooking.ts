@@ -51,13 +51,13 @@ export default class MakeBooking implements UseCaseSync {
       await this.sender.send(command);
 
       return { bookingId: booking.bookingId };
-    } catch (error) {
+    } catch (err) {
       Logger.error(`Error in ${this.constructor.name}. `, {
-        error: error.message,
-        detail: error.detail
+        error: err.message,
+        detail: err.detail
       });
 
-      throw error;
+      throw err;
     }
   }
 }

@@ -52,4 +52,26 @@ describe('MakeBooking Testing', () => {
       attributes: {}
     });
   });
+
+  it('Should log and throw error when get some workflow error', async () => {
+    const input = {
+      date: new Date('2123-01-01'),
+      passengers: [{ name: 'John', passportNumber: '789' }],
+      flightNumber: 'AA-820',
+      customer: { name: 'Suzie', email: 'suzie@hotmail.com' }
+    };
+    jest.spyOn(repository, 'save').mockRejectedValue(new Error());
+
+    await expect(useCase.execute(input)).rejects.toThrow();
+
+    expect(repository.save).toHaveBeenCalledWith({
+      bookingId: uuid,
+      date: input.date,
+      passengers: input.passengers,
+      flightNumber: input.flightNumber,
+      customer: input.customer,
+      status: BookingStatus.CREATED
+    });
+    expect(sender.send).not.toHaveBeenCalled();
+  });
 });
