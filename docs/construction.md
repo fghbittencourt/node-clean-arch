@@ -6,4 +6,9 @@
 
 2. Inner Layer
   - Domain
+  - Abstract repos
+  - Tests
+  - Use Cases
+  - Tests
+  - Controller
   - Tests
