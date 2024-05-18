@@ -1,0 +1,20 @@
+services:
+  api:
+    container_name: webapi
+    profiles: ['dev']
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: production
+    env_file: .env
+    ports:
+      - 4600:4600
+
+  tests:
+    container_name: tests
+    profiles: ['tests']
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.test
+      target: tests
+    env_file: .env
