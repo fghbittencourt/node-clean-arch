@@ -1,0 +1,12 @@
+# Run format check and unit tests
+FROM node:iron-alpine AS tests
+WORKDIR /usr/src/app
+
+COPY .env.sample .env
+COPY ./tests ./tests
+COPY ./src ./src
+COPY package.json yarn.lock tsconfig.json jest.config*.ts ./
+
+RUN yarn --frozen-lockfile
+
+CMD yarn test:unit
