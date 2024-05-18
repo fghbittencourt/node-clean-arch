@@ -1,16 +1,16 @@
-export interface ReservationResult {
+export interface EmitTicketsResult {
   tickets: string[];
   status: 'OK' | 'DENIED';
 }
 
-export interface CarrierPassenger {
+export interface EmitTicketPassenger {
   name: string;
   passportNumber: string;
 }
 
 export default interface Carrier {
-  bookFlight(
+  emitTickets(
     flightNumber: string,
-    passengers: CarrierPassenger[]
-  ): Promise<ReservationResult>;
+    passengers: EmitTicketPassenger[]
+  ): Promise<EmitTicketsResult>;
 }
