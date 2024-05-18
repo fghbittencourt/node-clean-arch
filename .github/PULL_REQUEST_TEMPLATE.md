@@ -1,18 +1,18 @@
-[Short description explaining the high-level reason for the pull request and link to issue (if applicable)]
+### [Short description](https://github.com/fghbittencourt/node-clean-arch/issues/ISSUE_NO)
 
-## Additions/Removals/Changes
+#### Additions/Removals/Changes
 
 -
 
-## Testing
+#### Testing
 
 1.
 
-## Todos
+#### Todos
 
 -
 
-## Checklist
+#### Checklist
 
 - [ ] PR has an informative and human-readable title
 - [ ] Changes are limited to a single goal (no scope creep)
