@@ -1,12 +1,9 @@
-# Run format check and unit tests
-FROM node:iron-alpine AS tests
-WORKDIR /usr/src/app
+FROM node:iron-slim AS tests
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . ./app
+WORKDIR /app
 
-COPY .env.sample .env
-COPY ./tests ./tests
-COPY ./src ./src
-COPY package.json yarn.lock tsconfig.json jest.config*.ts ./
-
-RUN yarn --frozen-lockfile
-
-CMD yarn test:unit
+RUN pnpm install --frozen-lockfile
+CMD pnpm test:unit

@@ -1,2 +1,8 @@
-node_modules
-npm-debug.log
+*
+!src
+!tests
+!package.json
+!pnpm-lock.yaml
+!.swcrc
+!.env
+!jest.config.ts

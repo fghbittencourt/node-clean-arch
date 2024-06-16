@@ -12,13 +12,13 @@ create.env-file:
 .PHONY: setup ## Setup environment
 setup: create.env-file install
 
-.PHONY: test
+.PHONY: test ## Run tests on docker
 test: format.check create.env-file docker.tests ## Run tests locally
 
-.PHONY: install ## Install yarn packages
+.PHONY: install ## Install packages
 install:
-	yarn install
+	pnpm install
 
 .PHONY: dev
 dev: setup docker.run ## Install an run the server locally
-	yarn dev
+	pnpm dev
