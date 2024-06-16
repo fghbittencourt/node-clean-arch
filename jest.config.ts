@@ -1,13 +1,16 @@
 export default {
+  preset: 'ts-jest',
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coverageProvider: 'v8',
-  preset: 'ts-jest',
+  coverageReporters: ['text'],
   coveragePathIgnorePatterns: ['node_modules/', 'tests/'],
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   transformIgnorePatterns: [],
   testMatch: ['**/tests/unit/**/*.test.ts'],
-  setupFilesAfterEnv: ['./tests/jest.setup.ts'],
-  testEnvironment: 'node'
+  testEnvironment: 'node',
+  transform: {
+    '^.+\\.(t|j)sx?$': '@swc/jest'
+  },
+  setupFilesAfterEnv: ['./tests/jest.setup.ts']
 };

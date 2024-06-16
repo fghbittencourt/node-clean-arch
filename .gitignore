@@ -9,7 +9,6 @@ logs
 .idea
 .history
 .TODO
-yarn-error.log
 *.log
 
 # docker compose files

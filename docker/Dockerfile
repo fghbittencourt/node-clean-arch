@@ -1,28 +1,22 @@
-# transpile the code
-FROM node:iron-alpine AS builder
-WORKDIR /usr/src/app
-
-COPY package*.json yarn.lock ./
-COPY tsconfig*.json ./
-COPY ./src ./src
-
-RUN yarn --production
-RUN cp -R node_modules prod_node_modules
-
-RUN yarn --frozen-lockfile && yarn build
-
-# Production stage gets the compiled code and install production dependencies only
-FROM node:iron-alpine as production
-
-ARG APP_PORT=4600
-
+FROM node:iron-slim AS base
+ARG PORT
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . ./app
 WORKDIR /app
+
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
+
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod
+
+FROM base
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
 ENV NODE_ENV=production
+EXPOSE ${PORT}
 
-COPY package*.json yarn.lock *.env ./
-COPY --from=builder /usr/src/app/dist ./src
-COPY --from=builder /usr/src/app/prod_node_modules ./node_modules
-
-EXPOSE ${APP_PORT}
-
-CMD ["yarn", "start"]
+CMD pnpm start
