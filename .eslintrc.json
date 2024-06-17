@@ -23,7 +23,8 @@
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "no-param-reassign": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "no-empty-function" : "off"
   },
   "settings": {
     "import/resolver": {
