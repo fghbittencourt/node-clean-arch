@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import 'reflect-metadata';
 import Logger from './infrastructure/log/logger';
 
 dotenv.config();
