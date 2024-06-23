@@ -11,8 +11,8 @@
   },
   "scripts": {
     "build": "swc ./src -d ./dist",
-    "dev": "pnpm ts-node-dev --clear --inspect --transpile-only --ignore node_modules -r dotenv/config src/index.ts service:",
     "start": "node ./src/index.js --optimize_for_size --max-semi-space-size=2048 --max-old-space-size=2048",
+    "dev:webapi": "pnpm ts-node-dev --clear --inspect --transpile-only --ignore node_modules -r dotenv/config src/index.ts webapi",
     "test:unit": "jest --silent --maxWorkers=2"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-validator": "^7.1.0",
+    "reflect-metadata": "^0.2.2",
     "semantic-release": "^24.0.0",
     "tsyringe": "^4.8.0",
     "uuid": "^10.0.0",

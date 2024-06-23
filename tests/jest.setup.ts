@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'reflect-metadata';
 
 dotenv.config();
 
