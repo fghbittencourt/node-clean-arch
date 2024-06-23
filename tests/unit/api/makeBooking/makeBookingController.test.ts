@@ -15,8 +15,8 @@ describe('ListFilesController testing', () => {
 
   it('Should return 200 and on a proper /makeBooking call', async () => {
     const payload = {
-      date: faker.date.soon(),
-      flightNumber: faker.number.int(),
+      date: faker.date.soon().toISOString(),
+      flightNumber: faker.number.int(10000),
       customer: {
         name: faker.person.fullName(),
         email: faker.internet.email()
@@ -29,15 +29,9 @@ describe('ListFilesController testing', () => {
       ]
     };
 
-    console.error(payload);
-
     const res = await request(app.getApp).post('/makeBooking').send(payload);
 
     expect(res.status).toEqual(HTTPStatus.OK);
-    expect(res.body).toMatchObject([
-      { fileName: 'file1' },
-      { fileName: 'file2' },
-      { fileName: 'file3' }
-    ]);
+    expect(res.body.bookingId).toBeDefined();
   });
 });

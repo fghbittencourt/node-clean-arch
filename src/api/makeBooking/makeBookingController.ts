@@ -9,7 +9,7 @@ import MakeBooking from '../../useCases/makeBooking/makeBooking';
 @injectable()
 export default class MakeBookingController implements ExpressController {
   validations = [
-    check('date').isDate(),
+    check('date').isISO8601().toDate(),
     check('flightNumber').isNumeric(),
     check('customer.name').trim().notEmpty(),
     check('customer.email').trim().notEmpty().isEmail(),
