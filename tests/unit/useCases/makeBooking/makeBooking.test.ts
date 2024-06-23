@@ -58,8 +58,8 @@ describe('MakeBooking Testing', () => {
       date: input.date,
       passengers: input.passengers,
       flightNumber: input.flightNumber,
-      commandName: 'MakeFlightReservationCommand',
-      queueName: process.env.QUEUE_FLIGHT_RESERVATION!,
+      commandName: 'EmitTicketsCommand',
+      queueName: process.env.QUEUE_EMIT_TICKETS!,
       delaySeconds: 1,
       attributes: {}
     });

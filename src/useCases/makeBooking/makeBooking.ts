@@ -9,7 +9,7 @@ import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync';
 import Logger from '../../infrastructure/log/logger';
 import Publisher from '../../infrastructure/messaging/publisher/publisher';
 import Sender from '../../infrastructure/messaging/sender/sender';
-import MakeFlightReservationCommand from '../commands/processBookingRequestCommand';
+import EmitTicketsCommand from '../commands/EmitTicketsCommand';
 
 export interface MakeBookingInput extends UseCaseInput {
   date: Date;
@@ -30,7 +30,7 @@ export default class MakeBooking implements UseCaseSync {
     @inject('Publisher') public readonly publisher: Publisher
   ) {}
 
-  async execute(input: MakeBookingInput): Promise<UseCaseOutput> {
+  async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
     try {
       // Cria o objeto de domínio
       const booking = new Booking(
@@ -56,7 +56,7 @@ export default class MakeBooking implements UseCaseSync {
 
       // Envia ordem para próxima fase (async)
       await this.sender.send(
-        new MakeFlightReservationCommand(
+        new EmitTicketsCommand(
           booking.bookingId,
           booking.date,
           booking.passengers,
