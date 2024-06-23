@@ -16,4 +16,4 @@ install: ## Install packages
 	pnpm install
 
 dev: setup docker.run ## Install and run the server locally
-	pnpm dev
+	pnpm dev:webapi

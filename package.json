@@ -12,6 +12,7 @@
   "scripts": {
     "build": "swc ./src -d ./dist",
     "start": "node ./src/index.js --optimize_for_size --max-semi-space-size=2048 --max-old-space-size=2048",
+    "start:dist": "node ./dist/src/index.js --optimize_for_size --max-semi-space-size=2048 --max-old-space-size=2048",
     "dev:webapi": "pnpm ts-node-dev --clear --inspect --transpile-only --ignore node_modules -r dotenv/config src/index.ts webapi",
     "test:unit": "jest --silent --maxWorkers=2"
   },

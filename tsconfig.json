@@ -1,8 +1,8 @@
 /* Visit https://aka.ms/tsconfig.json to read more about this file */
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "es2022",
+    "module": "es2022",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -16,5 +16,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["tests"]
+  "exclude": ["tests", "node_modules"]
 }

@@ -1,5 +1,4 @@
 import express from 'express';
-import os from 'os';
 import { container } from 'tsyringe';
 import App from '../infrastructure/base/api/app';
 import Logger from '../infrastructure/log/logger';
@@ -32,9 +31,7 @@ export default class WebApp implements App {
     const port = process.env.APP_PORT || 4500;
 
     this.#expressApp.listen(port, async () => {
-      Logger.info(
-        `App ${this.#appName} listening on http://${os.hostname}:${port} 🤟🤟🤟`
-      );
+      Logger.info(`App ${this.#appName} listening on port ${port} 🤟🤟🤟`);
     });
   };
 
