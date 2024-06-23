@@ -13,8 +13,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node"
   },
   "include": ["src"],
-  "exclude": ["tests", "node_modules"]
+  "exclude": ["tests"]
 }
