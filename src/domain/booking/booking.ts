@@ -1,15 +1,16 @@
 import BookingStatus from './bookingStatus';
 import Passenger from './passenger';
 
-interface FlightReservation {
+type Tickets = {
   ticketNumber: string;
+  passenger: Passenger;
   reservationStatus: 'OK' | 'DENIED';
-}
+};
 
-interface Customer {
+type Customer = {
   name: string;
   email: string;
-}
+};
 
 export default class Booking {
   constructor(
@@ -24,6 +25,7 @@ export default class Booking {
     this.status = BookingStatus.CREATED;
     this.passengers = passengers;
     this.flightNumber = flightNumber;
+    this.tickets = undefined;
     this.customer = customer;
 
     if (!passengers.length)
@@ -42,7 +44,7 @@ export default class Booking {
 
   flightNumber: string;
 
-  reservation?: FlightReservation;
+  tickets?: Tickets[];
 
   customer: Customer;
 

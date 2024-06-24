@@ -1,11 +1,15 @@
 {
   "jsc": {
     "target" : "es2022",
+    "baseUrl": ".",
     "parser": {
       "syntax": "typescript",
       "tsx": false,
       "decorators": true,
-      "dynamicImport": false
+      "dynamicImport": true
     }
+  },
+  "module": {
+    "type": "commonjs"
   }
 }

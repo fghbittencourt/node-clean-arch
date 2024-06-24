@@ -5,20 +5,15 @@ include makefiles/docker.mk
 include makefiles/format.mk
 include makefiles/help.mk
 
-.PHONY: create.env-file ## Create a .env file based on sample
-create.env-file:
+create.env-file: ## Creates a local .env file based on sample
 	cp .env.sample .env
 
-.PHONY: setup ## Setup environment
-setup: create.env-file install
+setup: create.env-file install ## Setup environment
 
-.PHONY: test ## Run tests on docker
 test: format.check create.env-file docker.tests ## Run tests locally
 
-.PHONY: install ## Install packages
-install:
+install: ## Install packages
 	pnpm install
 
-.PHONY: dev
-dev: setup docker.run ## Install an run the server locally
-	pnpm dev
+dev: setup docker.run ## Install and run the server locally
+	pnpm dev:webapi

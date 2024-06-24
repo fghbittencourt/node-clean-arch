@@ -1,19 +1,19 @@
 import Command from '../../infrastructure/messaging/command';
 
-type MakeFlightReservationCommandPassenger = {
+type EmitTicketsCommandPassenger = {
   name: string;
   passportNumber: string;
 };
 
-export default class MakeFlightReservationCommand extends Command {
-  readonly queueName = process.env.QUEUE_FLIGHT_RESERVATION!;
+export default class EmitTicketsCommand extends Command {
+  readonly queueName = process.env.QUEUE_EMIT_TICKETS!;
 
-  readonly commandName = 'MakeFlightReservationCommand';
+  readonly commandName = 'EmitTicketsCommand';
 
   constructor(
     bookingId: string,
     date: Date,
-    passengers: MakeFlightReservationCommandPassenger[],
+    passengers: EmitTicketsCommandPassenger[],
     flightNumber: string
   ) {
     super();
@@ -28,7 +28,7 @@ export default class MakeFlightReservationCommand extends Command {
 
   date: Date;
 
-  passengers: MakeFlightReservationCommandPassenger[];
+  passengers: EmitTicketsCommandPassenger[];
 
   flightNumber: string;
 }
