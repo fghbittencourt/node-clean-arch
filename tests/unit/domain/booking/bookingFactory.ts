@@ -5,18 +5,16 @@ import Booking from '../../../../src/domain/booking/booking'
 import BookingStatus from '../../../../src/domain/booking/bookingStatus'
 
 export default Factory.define<Booking>(() => ({
-  bookingId: faker.datatype.uuid(),
+  bookingId: faker.string.uuid(),
   confirmBooking: Booking.prototype.confirmBooking,
   customer: {
     email: faker.internet.email(),
     name: faker.name.fullName(),
   },
-  date: faker.datatype.datetime({
-    min: new Date(new Date().setDate(new Date().getDate() + 1)).getDate(),
-  }),
-  flightNumber: faker.datatype.string(),
+  date: faker.date.soon(),
+  flightNumber: faker.airline.flightNumber(),
   passengers: [
-    { name: faker.name.fullName(), passportNumber: faker.datatype.string() },
+    { name: faker.name.fullName(), passportNumber: faker.string.alpha(8) },
   ],
   status: BookingStatus.CREATED,
 }))
