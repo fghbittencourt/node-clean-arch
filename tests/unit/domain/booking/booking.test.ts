@@ -9,13 +9,13 @@ describe('Booking testing', () => {
   let booking: Booking
 
   it('should create a Booking object properly', async () => {
-    const uuid = faker.datatype.uuid()
+    const uuid = faker.string.uuid()
     const date = new Date(new Date().setDate(new Date().getDate() + 1)) // tomorrow
     const passengers = [
-      { name: faker.name.fullName(), passportNumber: faker.datatype.string() },
-      { name: faker.name.fullName(), passportNumber: faker.datatype.string() },
+      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
+      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
     ]
-    const flightNumber = faker.datatype.string()
+    const flightNumber = faker.airline.flightNumber()
     const customer = {
       email: faker.internet.email(),
       name: faker.name.fullName(),
@@ -32,16 +32,16 @@ describe('Booking testing', () => {
   })
 
   it('should not create a Booking object if it has an invalid date', async () => {
-    const uuid = faker.datatype.uuid()
+    const uuid = faker.string.uuid()
     const date = new Date('1998-01-01')
     const passengers = [
-      { name: faker.name.fullName(), passportNumber: faker.datatype.string() },
-      { name: faker.name.fullName(), passportNumber: faker.datatype.string() },
+      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
+      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
     ]
-    const flightNumber = faker.datatype.string()
+    const flightNumber = faker.airline.flightNumber()
     const customer = {
       email: faker.internet.email(),
-      name: faker.name.fullName(),
+      name: faker.person.fullName(),
     }
 
     expect(
@@ -50,13 +50,13 @@ describe('Booking testing', () => {
   })
 
   it('should not create a Booking object if it has no passengers', async () => {
-    const uuid = faker.datatype.uuid()
+    const uuid = faker.string.uuid()
     const date = new Date('1998-01-01')
     const passengers: Passenger[] = []
-    const flightNumber = faker.datatype.string()
+    const flightNumber = faker.airline.flightNumber()
     const customer = {
       email: faker.internet.email(),
-      name: faker.name.fullName(),
+      name: faker.person.fullName(),
     }
 
     expect(

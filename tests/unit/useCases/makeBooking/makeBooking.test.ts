@@ -9,7 +9,7 @@ import mockedBookingRepository from '../../domain/booking/mockedBookingRepositor
 import mockedPublisher from '../../infrastructure/messaging/publisher/mockedPublisher'
 import mockedSender from '../../infrastructure/messaging/sender/mockedSender'
 
-const uuid = faker.datatype.uuid()
+const uuid = faker.string.uuid()
 jest.mock('uuid', () => ({
   v4: () => uuid,
 }))
@@ -29,10 +29,10 @@ describe('MakeBooking Testing', () => {
 
   it('Should create a booking', async () => {
     const input = {
-      customer: { email: 'suzie@hotmail.com', name: 'Suzie' },
-      date: new Date('2123-01-01'),
-      flightNumber: 'AA-820',
-      passengers: [{ name: 'John', passportNumber: '789' }],
+      customer: { email: faker.internet.email(), name: faker.person.fullName() },
+      date: faker.date.soon(),
+      flightNumber: faker.airline.flightNumber(),
+      passengers: [{ name: faker.person.fullName(), passportNumber: faker.string.alpha(8) }],
     }
 
     const result = await useCase.execute(input)
@@ -68,10 +68,10 @@ describe('MakeBooking Testing', () => {
 
   it('Should log and throw error when get some workflow error', async () => {
     const input = {
-      customer: { email: 'suzie@hotmail.com', name: 'Suzie' },
-      date: new Date('2123-01-01'),
-      flightNumber: 'AA-820',
-      passengers: [{ name: 'John', passportNumber: '789' }],
+      customer: { email: faker.internet.email(), name: faker.person.fullName() },
+      date: faker.date.soon(),
+      flightNumber: faker.airline.flightNumber(),
+      passengers: [{ name: faker.person.fullName(), passportNumber: faker.string.alpha(8) }],
     }
     jest.spyOn(repository, 'save').mockRejectedValue(new Error())
 
