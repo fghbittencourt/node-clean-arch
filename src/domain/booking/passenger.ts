@@ -1,10 +1,10 @@
 export default class Passenger {
+  name: string
+
+  passportNumber: string
+
   constructor(name: string, passportNumber: string) {
-    this.name = name;
-    this.passportNumber = passportNumber;
+    this.name = name
+    this.passportNumber = passportNumber
   }
-
-  name: string;
-
-  passportNumber: string;
 }

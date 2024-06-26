@@ -1,21 +1,22 @@
-import { inject, injectable } from 'tsyringe';
-import { v4 as uuidv4 } from 'uuid';
-import Booking from '../../domain/booking/booking';
-import BookingCreatedEvent from '../../domain/booking/bookingCreatedEvent';
-import BookingRepository from '../../domain/booking/bookingRepository';
-import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput';
-import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput';
-import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync';
-import Logger from '../../infrastructure/log/logger';
-import Publisher from '../../infrastructure/messaging/publisher/publisher';
-import Sender from '../../infrastructure/messaging/sender/sender';
-import EmitTicketsCommand from '../commands/EmitTicketsCommand';
+import { inject, injectable } from 'tsyringe'
+import { v4 as uuidv4 } from 'uuid'
+
+import Booking from '../../domain/booking/booking'
+import BookingCreatedEvent from '../../domain/booking/bookingCreatedEvent'
+import BookingRepository from '../../domain/booking/bookingRepository'
+import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput'
+import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput'
+import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync'
+import Logger from '../../infrastructure/log/logger'
+import Publisher from '../../infrastructure/messaging/publisher/publisher'
+import Sender from '../../infrastructure/messaging/sender/sender'
+import EmitTicketsCommand from '../commands/EmitTicketsCommand'
 
 export interface MakeBookingInput extends UseCaseInput {
+  customer: { email: string; name: string };
   date: Date;
-  passengers: { name: string; passportNumber: string }[];
   flightNumber: string;
-  customer: { name: string; email: string };
+  passengers: { name: string; passportNumber: string }[];
 }
 
 export interface MakeBookingOutput extends UseCaseOutput {
@@ -27,7 +28,7 @@ export default class MakeBooking implements UseCaseSync {
   constructor(
     @inject('BookingRepository') public readonly repository: BookingRepository,
     @inject('Sender') public readonly sender: Sender,
-    @inject('Publisher') public readonly publisher: Publisher
+    @inject('Publisher') public readonly publisher: Publisher,
   ) {}
 
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
@@ -38,11 +39,11 @@ export default class MakeBooking implements UseCaseSync {
         input.date,
         input.passengers,
         input.flightNumber,
-        input.customer
-      );
+        input.customer,
+      )
 
       // Persiste
-      await this.repository.save(booking);
+      await this.repository.save(booking)
 
       // Notifica o mundo do que acabou de acontecer
       await this.publisher.publish(
@@ -50,9 +51,9 @@ export default class MakeBooking implements UseCaseSync {
           booking.bookingId,
           booking.date,
           booking.status,
-          booking.flightNumber
-        )
-      );
+          booking.flightNumber,
+        ),
+      )
 
       // Envia ordem para próxima fase (async)
       await this.sender.send(
@@ -60,18 +61,18 @@ export default class MakeBooking implements UseCaseSync {
           booking.bookingId,
           booking.date,
           booking.passengers,
-          booking.flightNumber
-        )
-      );
+          booking.flightNumber,
+        ),
+      )
 
-      return { bookingId: booking.bookingId };
+      return { bookingId: booking.bookingId }
     } catch (err) {
       Logger.error(`Error in ${this.constructor.name}. `, {
+        detail: err.detail,
         error: err.message,
-        detail: err.detail
-      });
+      })
 
-      throw err;
+      throw err
     }
   }
 }

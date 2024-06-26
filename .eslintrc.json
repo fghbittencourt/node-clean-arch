@@ -6,25 +6,34 @@
   "extends": [
     "airbnb-base",
     "plugin:@typescript-eslint/recommended",
-    "prettier/prettier",
-    "plugin:prettier/recommended"
+    "plugin:perfectionist/recommended-natural"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 12,
+    "ecmaVersion": 2022,
     "sourceType": "module"
   },
+  "plugins": [
+    "perfectionist"
+  ],
   "rules": {
-    "prettier/prettier": "error",
     "import/extensions": ["error", "ignorePackages", { "ts": "never" }],
     "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["error"],
+    "@typescript-eslint/no-shadow": 1,
     "no-useless-constructor": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
-    "no-empty-function" : "off"
+    "no-empty-function" : "off",
+    "semi": [2, "never"],
+    "perfectionist/sort-objects": [
+      "error",
+      {
+        "type": "natural",
+        "order": "asc"
+      }
+    ]
   },
   "settings": {
     "import/resolver": {

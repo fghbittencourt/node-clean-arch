@@ -1,27 +1,28 @@
-import winston from 'winston';
+import winston from 'winston'
+
 import {
   colors,
   commomConfig,
   consoleConfig,
   levels,
-  setupCurrentLevel
-} from './loggerConfig';
+  setupCurrentLevel,
+} from './loggerConfig'
 
-winston.addColors(colors);
+winston.addColors(colors)
 
 const transports: winston.transport[] = [
   new winston.transports.Console({
-    format: consoleConfig
-  })
-];
+    format: consoleConfig,
+  }),
+]
 
 const Logger = winston.createLogger({
+  format: commomConfig,
   level: setupCurrentLevel(),
   levels,
-  format: commomConfig,
-  transports
-});
+  transports,
+})
 
-export default Logger;
+export default Logger
 
-Logger.debug('Logger initialized');
+Logger.debug('Logger initialized')

@@ -1,24 +1,25 @@
-import { Request, Response } from 'express';
-import { injectable } from 'tsyringe';
-import ExpressController from '../../infrastructure/base/api/expressController';
-import Logger from '../../infrastructure/log/logger';
+import { Request, Response } from 'express'
+import { injectable } from 'tsyringe'
+
+import ExpressController from '../../infrastructure/base/api/expressController'
+import Logger from '../../infrastructure/log/logger'
 
 @injectable()
 export default class HealthController implements ExpressController {
-  validations = [];
-
   handle = async (req: Request, res: Response): Promise<void> => {
-    Logger.debug('handle - Calling Health Check');
+    Logger.debug('handle - Calling Health Check')
 
     const check = {
       app: process.env.APP_NAME,
+      httpStatus: 200,
       status: 'healthy',
-      uptime: process.uptime(),
       timestamp: Date.now(),
-      httpStatus: 200
-    };
+      uptime: process.uptime(),
+    }
 
-    res.status(check.httpStatus).send(check);
-    Logger.debug('handle - Called Health Check');
-  };
+    res.status(check.httpStatus).send(check)
+    Logger.debug('handle - Called Health Check')
+  }
+
+  validations = []
 }

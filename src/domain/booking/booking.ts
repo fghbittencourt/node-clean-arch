@@ -1,55 +1,53 @@
-import BookingStatus from './bookingStatus';
-import Passenger from './passenger';
+import BookingStatus from './bookingStatus'
+import Passenger from './passenger'
 
 type Tickets = {
-  ticketNumber: string;
   passenger: Passenger;
-  reservationStatus: 'OK' | 'DENIED';
+  reservationStatus: 'DENIED' | 'OK';
+  ticketNumber: string;
 };
 
 type Customer = {
-  name: string;
   email: string;
+  name: string;
 };
 
 export default class Booking {
+  bookingId: string
+
+  customer: Customer
+
+  date: Date
+
+  flightNumber: string
+
+  passengers: Passenger[]
+
+  status: BookingStatus
+
+  tickets?: Tickets[]
+
   constructor(
     bookingId: string,
     date: Date,
     passengers: Passenger[],
     flightNumber: string,
-    customer: Customer
+    customer: Customer,
   ) {
-    this.bookingId = bookingId;
-    this.date = date;
-    this.status = BookingStatus.CREATED;
-    this.passengers = passengers;
-    this.flightNumber = flightNumber;
-    this.tickets = undefined;
-    this.customer = customer;
+    this.bookingId = bookingId
+    this.date = date
+    this.status = BookingStatus.CREATED
+    this.passengers = passengers
+    this.flightNumber = flightNumber
+    this.tickets = undefined
+    this.customer = customer
 
-    if (!passengers.length)
-      throw new Error('Mininum of 1 passenger per booking');
+    if (!passengers.length) throw new Error('Mininum of 1 passenger per booking')
 
-    if (date < new Date()) throw new Error('Date should be on the future');
+    if (date < new Date()) throw new Error('Date should be on the future')
   }
 
-  bookingId: string;
-
-  date: Date;
-
-  status: BookingStatus;
-
-  passengers: Passenger[];
-
-  flightNumber: string;
-
-  tickets?: Tickets[];
-
-  customer: Customer;
-
   async confirmBooking(): Promise<void> {
-    if (this.status === BookingStatus.CREATED)
-      this.status = BookingStatus.CONFIRMED;
+    if (this.status === BookingStatus.CREATED) this.status = BookingStatus.CONFIRMED
   }
 }
