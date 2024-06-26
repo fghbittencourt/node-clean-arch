@@ -1,11 +1,11 @@
 export interface MessageData {
-  data?: string | Uint8Array | null;
   attributes?: { [k: string]: string } | null;
-  messageId?: string | null;
+  data?: Uint8Array | null | string;
+  messageId?: null | string;
 }
 
 export interface ReceivedMessage {
-  ackId?: string | null;
+  ackId?: null | string;
   message?: MessageData | null;
 }
 
@@ -14,25 +14,25 @@ export interface PullResponse {
 }
 
 export interface ConsumerEvents {
-  responseProcessed: [PullResponse];
+  deletingError: [Error, ReceivedMessage];
   empty: [];
+  messageProcessed: [ReceivedMessage];
+  messageReceived: [ReceivedMessage];
+  processingError: [Error, ReceivedMessage];
+  pullingError: [Error];
+  responseProcessed: [PullResponse];
   started: [];
   stopped: [];
-  messageReceived: [ReceivedMessage];
-  messageProcessed: [ReceivedMessage];
-  pullingError: [Error];
   timeoutError: [Error, ReceivedMessage];
-  processingError: [Error, ReceivedMessage];
-  deletingError: [Error, ReceivedMessage];
 }
 
 export default interface Consumer {
-  start(): Promise<void>;
-  stop(): Promise<void>;
-  get isRunning(): boolean;
   addHandler<T extends keyof ConsumerEvents>(
     event: T,
     handler: { (...args: unknown[]): void }
   ): void;
+  get isRunning(): boolean;
   removeHandler<T extends keyof ConsumerEvents>(event: T): void;
+  start(): Promise<void>;
+  stop(): Promise<void>;
 }

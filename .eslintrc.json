@@ -26,6 +26,7 @@
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
     "no-empty-function" : "off",
+    "semi": [2, "never"],
     "perfectionist/sort-objects": [
       "error",
       {

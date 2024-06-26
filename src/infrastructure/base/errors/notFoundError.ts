@@ -1,5 +1,5 @@
-import ErrorBase from './errorBase';
+import ErrorBase from './errorBase'
 
 export default class NotFoundError extends ErrorBase {
-  httpStatus = 404;
+  httpStatus = 404
 }

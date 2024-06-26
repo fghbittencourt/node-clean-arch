@@ -1,6 +1,6 @@
 export interface EmitTicketsResult {
+  status: 'DENIED' | 'OK';
   tickets: string[];
-  status: 'OK' | 'DENIED';
 }
 
 export interface EmitTicketPassenger {

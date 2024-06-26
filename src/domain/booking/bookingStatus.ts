@@ -1,6 +1,6 @@
 enum BookingStatus {
-  CREATED = 'CREATED',
-  CONFIRMED = 'CONFIRMED'
+  CONFIRMED = 'CONFIRMED',
+  CREATED = 'CREATED'
 }
 
-export default BookingStatus;
+export default BookingStatus

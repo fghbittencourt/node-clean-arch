@@ -1,7 +1,7 @@
-import Message from './message';
+import Message from './message'
 
 export default abstract class QueueMessage extends Message {
-  delaySeconds = 1;
+  delaySeconds = 1
 
   abstract readonly queueName: string;
 }

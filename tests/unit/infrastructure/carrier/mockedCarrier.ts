@@ -1,5 +1,5 @@
-import Carrier from '../../../../src/infrastructure/carrier/carrier';
+import Carrier from '../../../../src/infrastructure/carrier/carrier'
 
 export default (): Carrier => ({
-  emitTickets: jest.fn()
-});
+  emitTickets: jest.fn(),
+})
