@@ -54,34 +54,6 @@ automations:
           comment: |
             This PR is {{ changes.ratio }}% new code.
 
-  # Automatically enforce PR naming conventions
-  enforce_pr_title:
-    if:
-      - {{ pr.title | match(regex=titlePolicy.titleRegex) | nope }}
-    run:
-      - action: request-changes@v1
-        args:
-          comment: |
-            All PRs must be titled according to our semantic naming policy: `<type>(<scope>): <short summary>`
-
-            Type must be one of the following:
-
-             * build
-             * ci
-             * docs
-             * feat
-             * fix
-             * refactor
-             * chore
-
-            Scope must be one of the following:
-
-             * common
-             * core
-             * elements
-             * forms
-             * http
-
 # +----------------------------------------------------------------------------+
 # | Custom Expressions                                                         |
 # +----------------------------------------------------------------------------+
