@@ -1,30 +1,22 @@
-import { Request, Response } from 'express'
-import { check, validationResult } from 'express-validator'
+import { FastifyReply, FastifyRequest } from 'fastify'
 import { inject, injectable } from 'tsyringe'
 
-import ExpressController from '../../infrastructure/base/api/expressController'
+import FastifyController from '../../infrastructure/base/api/fastifyController'
 import HTTPStatus from '../../infrastructure/base/api/httpStatus'
 import Logger from '../../infrastructure/log/logger'
-import MakeBooking from '../../useCases/makeBooking/makeBooking'
+import MakeBooking, { MakeBookingInput } from '../../useCases/makeBooking/makeBooking'
 
 @injectable()
-export default class MakeBookingController implements ExpressController {
-  handle = async (req: Request, res: Response): Promise<void> => {
+export default class MakeBookingController implements FastifyController {
+  handle = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       Logger.debug('handle - Calling use case MakeBooking')
 
-      const schemaErrors = validationResult(req)
-
-      if (!schemaErrors.isEmpty()) {
-        res.status(HTTPStatus.BAD_REQUEST).send(schemaErrors.array())
-        return
-      }
-
-      const output = await this.useCase.execute(req.body)
+      const output = await this.useCase.execute(request.body as MakeBookingInput)
 
       Logger.debug('handle - Called use case MakeBooking')
 
-      res.send(output)
+      reply.send(output)
     } catch (error) {
       Logger.error(
         `handle - Error in MakeBookingController: ${error.message}`,
@@ -32,19 +24,30 @@ export default class MakeBookingController implements ExpressController {
           constructor: this.constructor.name,
         },
       )
-      res.status(HTTPStatus.INTERNAL_SERVER_ERROR).send(error.message)
+      reply.status(HTTPStatus.INTERNAL_SERVER_ERROR).send(error.message)
     }
   }
 
-  validations = [
-    check('date').isISO8601().toDate(),
-    check('flightNumber').isNumeric(),
-    check('customer.name').trim().notEmpty(),
-    check('customer.email').trim().notEmpty().isEmail(),
-    check('passengers').isArray(),
-    check('passengers.*.name').trim().notEmpty(),
-    check('passengers.*.passportNumber').trim().notEmpty(),
-  ]
+  schema = {
+    body: {
+      properties: {
+        customer: { properties: { email: { type: 'string' }, name: { type: 'string' } }, type: 'object' },
+        date: { type: 'string' },
+        flightNumber: { type: 'number' },
+        passengers: { type: 'array' },
+      },
+      required: ['flightNumber'],
+      type: 'object',
+    },
+    response: {
+      200: {
+        properties: {
+          bookingId: { type: 'string' },
+        },
+        type: 'object',
+      },
+    },
+  }
 
   constructor(@inject(MakeBooking) public readonly useCase: MakeBooking) {}
 }

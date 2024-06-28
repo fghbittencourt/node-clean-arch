@@ -1,21 +1,15 @@
-import { Router } from 'express'
+import { FastifyInstance } from 'fastify'
 import { container } from 'tsyringe'
 
 import HealthController from './health/healthController'
 import MakeBookingController from './makeBooking/makeBookingController'
 
-export default async (): Promise<Router> => {
-  const router = Router()
-
+export default async (server : FastifyInstance): Promise<FastifyInstance> => {
   const healthController = container.resolve(HealthController)
-  router.get('/', healthController.handle)
+  server.get('/', healthController.handle)
 
   const makeBookingController = container.resolve(MakeBookingController)
-  router.post(
-    '/makeBooking',
-    makeBookingController.validations,
-    makeBookingController.handle,
-  )
+  server.post('/makeBooking', { schema: makeBookingController.schema }, makeBookingController.handle)
 
-  return router
+  return server
 }
