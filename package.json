@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-validator": "^7.1.0",
+    "fastify": "^4.28.0",
     "reflect-metadata": "^0.2.2",
     "semantic-release": "^24.0.0",
     "tsyringe": "^4.8.0",
