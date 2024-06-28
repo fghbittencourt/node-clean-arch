@@ -5,5 +5,6 @@ const app = ApplicationFactory.create('webapi', false)
 
 export default async (): Promise<App> => {
   await app.start()
+  await app.ready()
   return app
 }

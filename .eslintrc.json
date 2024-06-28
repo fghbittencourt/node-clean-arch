@@ -17,7 +17,13 @@
     "perfectionist"
   ],
   "rules": {
-    "import/extensions": ["error", "ignorePackages", { "ts": "never" }],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never"
+      }
+    ],
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": 1,
     "no-useless-constructor": "off",
@@ -25,8 +31,12 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "no-param-reassign": "off",
     "class-methods-use-this": "off",
-    "no-empty-function" : "off",
-    "semi": [2, "never"],
+    "no-empty-function": "off",
+    "semi": [
+      2,
+      "never"
+    ],
+    "linebreak-style": 0,
     "perfectionist/sort-objects": [
       "error",
       {

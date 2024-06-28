@@ -30,7 +30,7 @@ describe('ListFilesController testing', () => {
       ],
     }
 
-    const res = await request(app.getApp).post('/makeBooking').send(payload)
+    const res = await request(app.server).post('/makeBooking').send(payload)
 
     expect(res.status).toEqual(HTTPStatus.OK)
     expect(res.body.bookingId).toBeDefined()

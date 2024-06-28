@@ -1,12 +1,12 @@
-import { Request, Response } from 'express'
+import { FastifyReply, FastifyRequest } from 'fastify'
 import { injectable } from 'tsyringe'
 
-import ExpressController from '../../infrastructure/base/api/expressController'
+import FastifyController from '../../infrastructure/base/api/fastifyController'
 import Logger from '../../infrastructure/log/logger'
 
 @injectable()
-export default class HealthController implements ExpressController {
-  handle = async (req: Request, res: Response): Promise<void> => {
+export default class HealthController implements FastifyController {
+  handle = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     Logger.debug('handle - Calling Health Check')
 
     const check = {
@@ -17,9 +17,11 @@ export default class HealthController implements ExpressController {
       uptime: process.uptime(),
     }
 
-    res.status(check.httpStatus).send(check)
+    reply.status(check.httpStatus).send(check)
     Logger.debug('handle - Called Health Check')
   }
+
+  schema: unknown
 
   validations = []
 }

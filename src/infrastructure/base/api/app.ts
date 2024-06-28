@@ -1,4 +1,5 @@
 export default interface App {
-  readonly getApp: unknown;
+  ready(): Promise<void>;
+  server: unknown;
   start(): Promise<void>;
 }
