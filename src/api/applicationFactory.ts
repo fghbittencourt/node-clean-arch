@@ -1,6 +1,6 @@
 import App from '../infrastructure/base/api/app'
+import FastifyApp from './fastifyApp'
 import HonoApp from './honoApp'
-import WebApp from './webApp'
 
 export default class ApplicationFactory {
   static create = (appName: string, startListening = true): App => {
@@ -8,7 +8,7 @@ export default class ApplicationFactory {
       throw new Error('APP_NAME must be defined')
     }
 
-    if (appName === 'webapi') return new WebApp(appName, startListening)
+    if (appName === 'webapi') return new FastifyApp(appName, startListening)
 
     if (appName === 'honoapi') return new HonoApp()
 

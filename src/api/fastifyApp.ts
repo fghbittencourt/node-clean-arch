@@ -7,7 +7,7 @@ import Logger from '../infrastructure/log/logger'
 import bootstrapper from './bootstrapper'
 import router from './router'
 
-export default class WebApp implements App {
+export default class FastifyApp implements App {
   #app!: FastifyInstance
 
   #appName: string

@@ -1,11 +1,11 @@
 import { serve } from '@hono/node-server'
 import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono, createRoute } from '@hono/zod-openapi'
+import { OpenAPIHono } from '@hono/zod-openapi'
 import { container } from 'tsyringe'
-import { z } from 'zod'
 
 import App from '../infrastructure/base/api/app'
 import Logger from '../infrastructure/log/logger'
+import bookingRoute from './booking/bookingRoute'
 import bootstrapper from './bootstrapper'
 
 export default class HonoApp implements App {
@@ -17,45 +17,12 @@ export default class HonoApp implements App {
     const app = new OpenAPIHono()
     this.server = app
 
-    // example route
-    const testRoute = createRoute({
-      method: 'post',
-      path: '/test',
-      request: {
-        body: {
-          content: {
-            'application/json': {
-              schema: z.object({
-                fullName: z.string().openapi({ example: 'João Cardoso' }),
-              }),
-            },
-          },
-          description: 'my method description',
-        },
-      },
-      responses: {
-        200: {
-          content: {
-            'application/json': {
-              schema: z.object({
-                hello: z.string(),
-              }),
-            },
-          },
-          description: 'say hello',
-        },
-      },
-    })
-    app.openapi(testRoute, async (c) => {
-      const body = await c.req.json()
-      Logger.debug(body)
-      return c.json({ hello: body.fullName }, 200)
-    })
+    app.route('/booking', bookingRoute) // <- add imported route here
 
-    // The openapi.json will be available at /doc
+    app.notFound((c) => c.text('Not found 🙁'))
     app.doc('/docs/json', {
       info: {
-        title: 'My API',
+        title: 'OpenAPI Hono 🚀',
         version: '1.0.0',
       },
       openapi: '3.0.0',
