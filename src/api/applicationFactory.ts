@@ -1,4 +1,5 @@
 import App from '../infrastructure/base/api/app'
+import HonoApp from './honoApp'
 import WebApp from './webApp'
 
 export default class ApplicationFactory {
@@ -8,6 +9,8 @@ export default class ApplicationFactory {
     }
 
     if (appName === 'webapi') return new WebApp(appName, startListening)
+
+    if (appName === 'honoapi') return new HonoApp()
 
     throw new Error('Could not create Application. Check for a valid APP_NAME')
   }
