@@ -7,7 +7,7 @@ import Logger from '../infrastructure/log/logger'
 import bootstrapper from './bootstrapper'
 import router from './router'
 
-export default class WebApp implements App {
+export default class FastifyApp implements App {
   #app!: FastifyInstance
 
   #appName: string
@@ -31,17 +31,15 @@ export default class WebApp implements App {
 
   #startListening: boolean
 
-  ready = async (): Promise<void> => {
-    this.#app.ready()
-    this.server = this.#app.server
-  }
-
   server: unknown
 
   start = async (): Promise<void> => {
     await bootstrapper(container)
 
     await this.#proceedInitialization()
+
+    await this.#app.ready()
+    this.server = this.#app.server
   }
 
   constructor(appName: string, startListening = true) {

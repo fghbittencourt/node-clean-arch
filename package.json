@@ -18,13 +18,18 @@
   },
   "dependencies": {
     "@fastify/helmet": "^11.1.1",
+    "@hono/node-server": "^1.11.4",
+    "@hono/swagger-ui": "^0.3.0",
+    "@hono/zod-openapi": "^0.14.5",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.0",
+    "hono": "^4.4.9",
     "reflect-metadata": "^0.2.2",
     "semantic-release": "^24.0.0",
     "tsyringe": "^4.8.0",
     "uuid": "^10.0.0",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

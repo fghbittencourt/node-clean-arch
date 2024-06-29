@@ -21,7 +21,5 @@ export default class HealthController implements FastifyController {
     Logger.debug('handle - Called Health Check')
   }
 
-  schema: unknown
-
-  validations = []
+  schema = {}
 }
