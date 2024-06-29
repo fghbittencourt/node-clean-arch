@@ -9,7 +9,7 @@ const app = new OpenAPIHono()
 
 const route = createRoute({
   method: 'post',
-  name: 'booking',
+  name: 'bookings',
   path: '/',
   request: {
     body: {

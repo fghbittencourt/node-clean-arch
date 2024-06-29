@@ -31,17 +31,15 @@ export default class FastifyApp implements App {
 
   #startListening: boolean
 
-  ready = async (): Promise<void> => {
-    this.#app.ready()
-    this.server = this.#app.server
-  }
-
   server: unknown
 
   start = async (): Promise<void> => {
     await bootstrapper(container)
 
     await this.#proceedInitialization()
+
+    await this.#app.ready()
+    this.server = this.#app.server
   }
 
   constructor(appName: string, startListening = true) {

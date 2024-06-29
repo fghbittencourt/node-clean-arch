@@ -4,7 +4,7 @@ import App from '../../../../src/infrastructure/base/api/app'
 import HTTPStatus from '../../../../src/infrastructure/base/api/httpStatus'
 import { getHonoApp } from '../../../testApp'
 
-describe('BookingRoute testing', () => {
+describe('Bookings Route testing', () => {
   let app: App
 
   beforeAll(async () => {
@@ -28,7 +28,7 @@ describe('BookingRoute testing', () => {
         },
       ],
     }
-    const res = await app.server.request('/booking', {
+    const res = await app.server.request('/bookings', {
       body: JSON.stringify(payload),
       headers: new Headers({ 'Content-Type': 'application/json' }),
       method: 'POST',

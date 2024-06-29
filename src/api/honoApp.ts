@@ -5,7 +5,7 @@ import { container } from 'tsyringe'
 
 import App from '../infrastructure/base/api/app'
 import Logger from '../infrastructure/log/logger'
-import bookingRoute from './booking/bookingRoute'
+import bookingsRoute from './bookings/bookingsRoute'
 import bootstrapper from './bootstrapper'
 
 export default class HonoApp implements App {
@@ -21,7 +21,7 @@ export default class HonoApp implements App {
     const app = new OpenAPIHono()
     this.server = app
 
-    app.route('/booking', bookingRoute) // <- add imported route here
+    app.route('/bookings', bookingsRoute) // <- add imported route here
 
     app.notFound((c) => c.text('Not found 🙁'))
     app.doc('/docs/json', {
@@ -47,9 +47,5 @@ export default class HonoApp implements App {
   constructor(appName: string, startListening = true) {
     this.#startListening = startListening
     this.#appName = appName
-  }
-
-  ready(): Promise<void> {
-    Logger.debug('Hono ready')
   }
 }
