@@ -1,20 +1,19 @@
 import { faker } from '@faker-js/faker'
-import request from 'supertest'
 
 import App from '../../../../src/infrastructure/base/api/app'
 import HTTPStatus from '../../../../src/infrastructure/base/api/httpStatus'
-import testApp from '../../../testApp'
+import { getHonoApp } from '../../../testApp'
 
-describe('ListFilesController testing', () => {
+describe('BookingRoute testing', () => {
   let app: App
 
   beforeAll(async () => {
-    app = await testApp()
+    app = await getHonoApp()
   })
 
   beforeEach(async () => {})
 
-  it('Should return 200 and on a proper /makeBooking call', async () => {
+  it('Should return 201 and on a proper /booking call', async () => {
     const payload = {
       customer: {
         email: faker.internet.email(),
@@ -29,10 +28,13 @@ describe('ListFilesController testing', () => {
         },
       ],
     }
+    const res = await app.server.request('/booking', {
+      body: JSON.stringify(payload),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      method: 'POST',
+    })
 
-    const res = await request(app.server).post('/makeBooking').send(payload)
-
-    expect(res.status).toEqual(HTTPStatus.OK)
-    expect(res.body.bookingId).toBeDefined()
+    expect(res.status).toEqual(HTTPStatus.CREATED)
+    expect((await res.json()).bookingId).toBeDefined()
   })
 })

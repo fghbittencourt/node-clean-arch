@@ -10,7 +10,7 @@ export default class ApplicationFactory {
 
     if (appName === 'webapi') return new FastifyApp(appName, startListening)
 
-    if (appName === 'honoapi') return new HonoApp()
+    if (appName === 'honoapi') return new HonoApp(appName, startListening)
 
     throw new Error('Could not create Application. Check for a valid APP_NAME')
   }

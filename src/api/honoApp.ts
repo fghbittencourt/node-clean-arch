@@ -9,6 +9,10 @@ import bookingRoute from './booking/bookingRoute'
 import bootstrapper from './bootstrapper'
 
 export default class HonoApp implements App {
+  #appName: string
+
+  #startListening: boolean
+
   server: unknown
 
   start = async (): Promise<void> => {
@@ -22,23 +26,30 @@ export default class HonoApp implements App {
     app.notFound((c) => c.text('Not found 🙁'))
     app.doc('/docs/json', {
       info: {
-        title: 'OpenAPI Hono 🚀',
+        title: `OpenAPI ${this.#appName} 🚀`,
         version: '1.0.0',
       },
       openapi: '3.0.0',
     })
     app.get('/docs', swaggerUI({ url: '/docs/json' }))
 
-    const port = 4500
-    Logger.info(`Hono Server is running on port ${port}`)
+    if (this.#startListening) {
+      const port = 4500
+      Logger.info(`Hono Server is running on port ${port}`)
 
-    serve({
-      fetch: app.fetch,
-      port,
-    })
+      serve({
+        fetch: app.fetch,
+        port,
+      })
+    }
+  }
+
+  constructor(appName: string, startListening = true) {
+    this.#startListening = startListening
+    this.#appName = appName
   }
 
   ready(): Promise<void> {
-    throw new Error('Method not implemented.')
+    Logger.debug('Hono ready')
   }
 }
