@@ -1,7 +1,7 @@
 import RickAndMortyApi, { Character, Episodes } from './rickAndMortyApi'
 
 export default class RickAndMortyApiService implements RickAndMortyApi {
-  private readonly baseUrl: string
+  readonly baseUrl: string
 
   constructor() {
     this.baseUrl = 'https://rickandmortyapi.com/api' // This should not be here ;)
