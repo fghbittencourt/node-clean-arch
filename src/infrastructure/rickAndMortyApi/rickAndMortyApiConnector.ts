@@ -1,6 +1,6 @@
 import RickAndMortyApi, { Character, Episodes } from './rickAndMortyApi'
 
-export default class RickAndMortyApiService implements RickAndMortyApi {
+export default class RickAndMortyApiConnector implements RickAndMortyApi {
   readonly baseUrl: string
 
   constructor() {

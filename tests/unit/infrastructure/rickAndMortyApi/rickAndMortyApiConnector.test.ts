@@ -1,14 +1,14 @@
 import fetchMock from 'jest-fetch-mock'
 
-import RickAndMortyApiService from '../../../../src/infrastructure/rickAndMortyApi/rickAndMortyApiService'
+import RickAndMortyApiConnector from '../../../../src/infrastructure/rickAndMortyApi/rickAndMortyApiConnector'
 
-describe('RickAndMortyApiService Testing', () => {
+describe('RickAndMortyApiConnector Testing', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
   })
 
   it('Should call getCharacterById method', async () => {
-    const service = new RickAndMortyApiService()
+    const service = new RickAndMortyApiConnector()
     const id = '1'
     const jsonExample = { id }
 
@@ -20,7 +20,7 @@ describe('RickAndMortyApiService Testing', () => {
   })
 
   it('Should call getCharacters method', async () => {
-    const service = new RickAndMortyApiService()
+    const service = new RickAndMortyApiConnector()
     const jsonExample = { }
 
     fetchMock.mockResponseOnce(JSON.stringify(jsonExample))
@@ -31,7 +31,7 @@ describe('RickAndMortyApiService Testing', () => {
   })
 
   it('Should call getEpisodes method', async () => {
-    const service = new RickAndMortyApiService()
+    const service = new RickAndMortyApiConnector()
     const jsonExample = { }
 
     fetchMock.mockResponseOnce(JSON.stringify(jsonExample))
