@@ -9,7 +9,7 @@ describe('RickAndMortyApiConnector Testing', () => {
 
   it('Should call getCharacterById method', async () => {
     const service = new RickAndMortyApiConnector()
-    const id = '1'
+    const id = 1
     const jsonExample = { id }
 
     fetchMock.mockResponseOnce(JSON.stringify(jsonExample))
