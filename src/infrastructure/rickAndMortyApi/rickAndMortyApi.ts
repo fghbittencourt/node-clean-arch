@@ -14,7 +14,7 @@ export interface Episodes {
 }
 
 export default interface RickAndMortyApi {
-  getCharacterById: (id: string) => Promise<Character[]>;
+  getCharacterById: (id: number) => Promise<Character[]>;
   getCharacters: () => Promise<Character[]>;
   getEpisodes: () => Promise<Episodes[]>;
 }
