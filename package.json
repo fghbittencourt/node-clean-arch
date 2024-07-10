@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@fastify/helmet": "^11.1.1",
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^4.0.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.0",
     "reflect-metadata": "^0.2.2",
@@ -25,7 +27,9 @@
     "snakecase-keys": "^8.0.1",
     "tsyringe": "^4.8.0",
     "uuid": "^10.0.0",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",

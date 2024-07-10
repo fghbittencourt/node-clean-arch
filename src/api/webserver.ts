@@ -1,4 +1,6 @@
 import helmet from '@fastify/helmet'
+import fastifySwagger from '@fastify/swagger'
+import fastifySwaggerUI from '@fastify/swagger-ui'
 import fastify, { FastifyInstance } from 'fastify'
 import { container } from 'tsyringe'
 
@@ -17,6 +19,17 @@ export default async (
   await bootstrapper(container)
 
   const app = fastify()
+
+  /// SWAGGER ///
+  app.register(fastifySwagger)
+  app.register(fastifySwaggerUI, {
+    routePrefix: '/docs',
+    transformSpecificationClone: true,
+    uiConfig: {
+      deepLinking: false,
+      docExpansion: 'full',
+    },
+  })
 
   /// MIDDLEWARES ///
   app.addHook('preHandler', snakeCaseMiddleware)

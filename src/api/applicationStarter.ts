@@ -6,6 +6,4 @@ export default async (appName: string, startListening = true): Promise<void> => 
   }
 
   if (appName === 'webapi') await webServer(appName, startListening)
-
-  throw new Error('Could not create Application. Check for a valid APP_NAME')
 }

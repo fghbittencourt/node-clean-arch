@@ -21,11 +21,11 @@ describe('Bookings Route testing', () => {
         name: faker.person.fullName(),
       },
       date: faker.date.soon().toISOString(),
-      flightNumber: faker.number.int(10000),
+      flight_number: faker.number.int(10000),
       passengers: [
         {
           name: faker.person.fullName(),
-          passportNumber: faker.string.alpha(6),
+          passport_number: faker.string.alpha(6),
         },
       ],
     }
