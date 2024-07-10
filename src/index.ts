@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reflect-metadata'
 
-import ApplicationFactory from './api/applicationFactory'
+import applicationStarter from './api/applicationStarter'
 import Logger from './infrastructure/log/logger'
 
 dotenv.config()
@@ -10,10 +10,9 @@ dotenv.config()
 const appName = process.env.APP_NAME ?? process.argv.slice(2)[0];
 
 (async (): Promise<void> => {
-  Logger.info(`Initializing app "${appName}"`)
-  const app = ApplicationFactory.create(appName)
+  Logger.info(`Initializing application "${appName}"`)
 
-  app.start()
+  await applicationStarter(appName)
 })().catch((err) => {
   Logger.error(`FATAL ERROR: ${err}`)
 })

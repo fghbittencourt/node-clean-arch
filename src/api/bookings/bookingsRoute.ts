@@ -1,58 +1,23 @@
-import { OpenAPIHono, createRoute } from '@hono/zod-openapi'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import snakeCaseKeys from 'snakecase-keys'
 import { container } from 'tsyringe'
-import { z } from 'zod'
 
-import Logger from '../../infrastructure/log/logger'
-import MakeBooking from '../../useCases/makeBooking/makeBooking'
+import MakeBooking, { MakeBookingInput } from '../../useCases/makeBooking/makeBooking'
 
-const app = new OpenAPIHono()
+export default async (fastify: FastifyInstance) => {
+  fastify.post(
+    '/bookings',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const uc = container.resolve(MakeBooking)
+      const input = request.body
+      const output = await uc.execute(input as MakeBookingInput)
 
-const route = createRoute({
-  method: 'post',
-  name: 'bookings',
-  path: '/',
-  request: {
-    body: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            customer: z.object({ email: z.string(), name: z.string() }),
-            date: z.coerce.date(),
-            flightNumber: z.number(),
-            passengers: z.array(
-              z.object(
-                {
-                  name: z.string(),
-                  passportNumber: z.string(),
-                },
-              ),
-            ),
-          }),
-        },
-      },
-      description: 'registar a new booking',
+      return reply
+        .status(201)
+        .send(
+          // turn keys into snake-case-pattern
+          snakeCaseKeys({ ...output }),
+        )
     },
-  },
-  responses: {
-    201: {
-      content: {
-        'application/json': {
-          schema: z.object({
-            bookingId: z.string(),
-          }),
-        },
-      },
-      description: 'Success',
-    },
-  },
-})
-app.openapi(route, async (c) => {
-  Logger.error(`Calling route ${route.name}`)
-  const uc = container.resolve(MakeBooking)
-  const input = await c.req.json()
-  const output = await uc.execute(input)
-
-  return c.json(output, 201)
-})
-
-export default app
+  )
+}

@@ -1,19 +1,20 @@
 import { faker } from '@faker-js/faker'
+import { FastifyInstance } from 'fastify'
 
-import App from '../../../../src/infrastructure/base/api/app'
 import HTTPStatus from '../../../../src/infrastructure/base/api/httpStatus'
-import { getHonoApp } from '../../../testApp'
+import testWebServer from '../../../testWebServer'
 
 describe('Bookings Route testing', () => {
-  let app: App
+  let app: FastifyInstance
 
   beforeAll(async () => {
-    app = await getHonoApp()
+    app = await testWebServer()
+    await app.ready()
   })
 
-  beforeEach(async () => {})
+  afterAll(() => app.close())
 
-  it('Should return 201 and on a proper /booking call', async () => {
+  it('Should return 201 on POST /bookings', async () => {
     const payload = {
       customer: {
         email: faker.internet.email(),
@@ -28,13 +29,14 @@ describe('Bookings Route testing', () => {
         },
       ],
     }
-    const res = await app.server.request('/bookings', {
-      body: JSON.stringify(payload),
-      headers: new Headers({ 'Content-Type': 'application/json' }),
+
+    const res = await app.inject({
       method: 'POST',
+      payload,
+      url: '/bookings',
     })
 
-    expect(res.status).toEqual(HTTPStatus.CREATED)
-    expect((await res.json()).bookingId).toBeDefined()
+    expect(res.statusCode).toEqual(HTTPStatus.CREATED)
+    expect(res.json().booking_id).toBeDefined()
   })
 })
