@@ -1,14 +1,7 @@
-import ErrorBase from './errorBase'
+import ApiError, { ErrorType } from './apiError'
 
-const buildErrorMessage = (msg: string, details?: unknown): string => `${msg} ${details ? JSON.stringify(details) : ''}`
-export default class BadRequestError extends ErrorBase {
-  details: unknown
-
-  httpStatus = 400
-
-  constructor(msg: string, details?: unknown) {
-    super(buildErrorMessage(msg, details))
-
-    this.details = details
+export default class BadRequestError extends ApiError {
+  constructor(msg: string) {
+    super(ErrorType.BAD_REQUEST, msg)
   }
 }

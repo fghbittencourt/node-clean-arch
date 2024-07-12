@@ -1,5 +1,7 @@
-import ErrorBase from './errorBase'
+import ApiError, { ErrorType } from './apiError'
 
-export default class NotFoundError extends ErrorBase {
-  httpStatus = 404
+export default class NotFoundError extends ApiError {
+  constructor(msg: string) {
+    super(ErrorType.NOT_FOUND, msg)
+  }
 }
