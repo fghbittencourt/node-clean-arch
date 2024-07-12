@@ -1,9 +1,10 @@
-import { inject } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import { EntityManager, Repository } from 'typeorm'
 
 import Booking from '../../../domain/booking/booking'
 import BookingRepository from '../../../domain/booking/bookingRepository'
 
+@injectable()
 export default class PostgresBookingRepository implements BookingRepository {
   #repo: Repository<Booking>
 

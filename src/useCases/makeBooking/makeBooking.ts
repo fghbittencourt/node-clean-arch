@@ -35,14 +35,16 @@ export default class MakeBooking implements UseCaseSync {
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
     try {
       // Domain objects
+      const bookingId = uuidv4()
       const passengers = input.passengers.map((passenger) => new Passenger(
         uuidv4(),
         passenger.name,
         passenger.passportNumber,
+        bookingId,
       ))
 
       const booking = new Booking(
-        uuidv4(),
+        bookingId,
         input.date,
         passengers,
         input.flightNumber,

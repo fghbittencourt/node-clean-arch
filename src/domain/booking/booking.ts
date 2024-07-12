@@ -48,7 +48,7 @@ export default class Booking {
     this.createdAt = new Date()
     this.updatedAt = new Date()
 
-    if (!passengers.length) throw new Error('Mininum of 1 passenger per booking')
+    if (passengers?.length === 0) throw new Error('Mininum of 1 passenger per booking')
 
     if (date < new Date()) throw new Error('Date should be on the future')
   }

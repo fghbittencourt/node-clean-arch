@@ -23,7 +23,7 @@ export default class DefaultConnection implements DatabaseConnection {
 
       Logger.debug(`Connected to database on ${this.constructor.name}!`)
     } catch (err) {
-      Logger.debug('Error connecting to Postgres', {
+      Logger.error('Error connecting to Postgres', {
         error: err.message,
       })
 

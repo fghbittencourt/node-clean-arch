@@ -1,13 +1,18 @@
+/* eslint-disable import/prefer-default-export */
 import { MigrationInterface, QueryRunner, Table } from 'typeorm'
 
-export default class implements MigrationInterface {
+export class ChangeMyName1720757353055 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('passenger')
+    await queryRunner.dropTable('booking')
+  }
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
         columns: [
           {
             generationStrategy: 'uuid',
-            isGenerated: true,
             isPrimary: true,
             name: 'booking_id',
             type: 'uuid',
@@ -49,7 +54,6 @@ export default class implements MigrationInterface {
         columns: [
           {
             generationStrategy: 'uuid',
-            isGenerated: true,
             isPrimary: true,
             name: 'passengerId',
             type: 'uuid',
@@ -82,18 +86,13 @@ export default class implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            columnNames: ['booking_id'],
-            referencedColumnNames: ['courier_id'],
-            referencedTableName: 'ticket',
+            columnNames: ['passengerId'],
+            referencedColumnNames: ['booking_id'],
+            referencedTableName: 'booking',
           },
         ],
         name: 'passenger',
       }),
     )
-  }
-
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('passenger')
-    await queryRunner.dropTable('booking')
   }
 }

@@ -32,6 +32,11 @@ const registerRepos = async (container: DependencyContainer): Promise<void> => {
       useFactory: instanceCachingFactory(() => defaultConnection),
     })
 
+    container.registerInstance(
+      'DefaultEntityManager',
+      defaultConnection.datasource!.manager,
+    )
+
     container.register<BookingRepository>('BookingRepository', {
       useClass: PostgresBookingRepository,
     })

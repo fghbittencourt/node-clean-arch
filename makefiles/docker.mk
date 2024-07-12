@@ -7,6 +7,9 @@ docker.rebuild: ## Rebuild and get containers up for development
 docker.run: ## Get containers up for development
 	docker compose --profile dev up --detach
 
+docker.run.db: ## Get database container up
+	docker-compose --profile db up --detach
+
 docker.tests: ##format.check   Run all testes
 	docker compose --profile tests up --build --timeout 10 --abort-on-container-exit tests
 
