@@ -14,6 +14,9 @@
     "start": "node ./src/index.js",
     "start:dist": "node ./dist/src/index.js",
     "dev:webapi": "nodemon --exec swc-node ./src/index.ts webapi",
+    "migration:create": "typeorm-ts-node-esm migration:create src/repositories/postgres/migrations/change-my-name",
+    "migration:run": "ts-node -r dotenv/config ./node_modules/typeorm/cli.js migration:run --dataSource ./src/repositories/postgres/appDataSource.ts",
+    "migration:revert": "ts-node -r dotenv/config ./node_modules/typeorm/cli.js migration:revert --dataSource ./src/repositories/postgres/appDataSource.ts",
     "test": "jest --silent --maxWorkers=2"
   },
   "dependencies": {
@@ -22,6 +25,7 @@
     "@fastify/swagger-ui": "^4.0.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.0",
+    "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "semantic-release": "^24.0.0",
     "snakecase-keys": "^8.0.1",
