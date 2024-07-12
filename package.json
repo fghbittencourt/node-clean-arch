@@ -26,6 +26,8 @@
     "semantic-release": "^24.0.0",
     "snakecase-keys": "^8.0.1",
     "tsyringe": "^4.8.0",
+    "typeorm": "^0.3.20",
+    "typeorm-naming-strategies": "^4.1.0",
     "uuid": "^10.0.0",
     "winston": "^3.13.0",
     "zod": "^3.23.8",

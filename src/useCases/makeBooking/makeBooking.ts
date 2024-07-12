@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Booking from '../../domain/booking/booking'
 import BookingCreatedEvent from '../../domain/booking/bookingCreatedEvent'
 import BookingRepository from '../../domain/booking/bookingRepository'
-import DomainError from '../../infrastructure/base/errors/domainError'
+import Passenger from '../../domain/passenger/passenger'
 import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput'
 import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput'
 import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync'
@@ -34,19 +34,25 @@ export default class MakeBooking implements UseCaseSync {
 
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
     try {
-      // Cria o objeto de domínio
+      // Domain objects
+      const passengers = input.passengers.map((passenger) => new Passenger(
+        uuidv4(),
+        passenger.name,
+        passenger.passportNumber,
+      ))
+
       const booking = new Booking(
         uuidv4(),
         input.date,
-        input.passengers,
+        passengers,
         input.flightNumber,
         input.customer,
       )
 
-      // Persiste
+      // Saving
       await this.repository.save(booking)
 
-      // Notifica o mundo do que acabou de acontecer
+      // Publish event
       await this.publisher.publish(
         new BookingCreatedEvent(
           booking.bookingId,
@@ -56,7 +62,7 @@ export default class MakeBooking implements UseCaseSync {
         ),
       )
 
-      // Envia ordem para próxima fase (async)
+      // Send command
       await this.sender.send(
         new EmitTicketsCommand(
           booking.bookingId,
