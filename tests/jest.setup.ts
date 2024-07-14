@@ -8,5 +8,6 @@ dotenv.config()
 
 process.env.APP_CONTEXT = 'SYNC'
 process.env.DB_ENGINE = 'dummy'
+process.env.APP_NAME = 'test_app'
 
 jest.mock('../src/infrastructure/log/logger')
