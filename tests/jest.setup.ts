@@ -7,5 +7,6 @@ fetchMock.enableMocks()
 dotenv.config()
 
 process.env.APP_CONTEXT = 'SYNC'
+process.env.DB_ENGINE = 'dummy'
 
 jest.mock('../src/infrastructure/log/logger')

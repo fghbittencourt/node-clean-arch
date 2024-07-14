@@ -2,10 +2,13 @@ import { faker } from '@faker-js/faker'
 
 import BookingRepository from '../../../../src/domain/booking/bookingRepository'
 import BookingStatus from '../../../../src/domain/booking/bookingStatus'
+import PassengerRepository from '../../../../src/domain/passenger/passengerRepository'
 import Publisher from '../../../../src/infrastructure/messaging/publisher/publisher'
 import Sender from '../../../../src/infrastructure/messaging/sender/sender'
 import MakeBooking from '../../../../src/useCases/makeBooking/makeBooking'
 import mockedBookingRepository from '../../domain/booking/mockedBookingRepository'
+import mockedPassengerRepository from '../../domain/passenger/mockedPassengerRepository'
+import passengerFactory from '../../domain/passenger/passengerFactory'
 import mockedPublisher from '../../infrastructure/messaging/publisher/mockedPublisher'
 import mockedSender from '../../infrastructure/messaging/sender/mockedSender'
 
@@ -16,41 +19,56 @@ jest.mock('uuid', () => ({
 
 describe('MakeBooking Testing', () => {
   let repository: BookingRepository
+  let passengerRepository: PassengerRepository
   let useCase: MakeBooking
   let sender: Sender
   let publisher: Publisher
+  let defaultDate: Date
 
   beforeAll(() => {
     sender = mockedSender()
     publisher = mockedPublisher()
     repository = mockedBookingRepository()
-    useCase = new MakeBooking(repository, sender, publisher)
+    passengerRepository = mockedPassengerRepository()
+    useCase = new MakeBooking(repository, passengerRepository, sender, publisher)
+
+    defaultDate = new Date()
+    jest.useFakeTimers().setSystemTime(defaultDate)
   })
 
   it('Should create a booking', async () => {
+    const passengers = passengerFactory.buildList(2)
     const input = {
       customer: { email: faker.internet.email(), name: faker.person.fullName() },
       date: faker.date.soon(),
       flightNumber: faker.airline.flightNumber(),
-      passengers: [{ name: faker.person.fullName(), passportNumber: faker.string.alpha(8) }],
+      passengers,
     }
+    jest.spyOn(passengerRepository, 'findByFullName')
+      .mockResolvedValueOnce(passengers[0])
+      .mockResolvedValueOnce(passengers[1])
 
     const result = await useCase.execute(input)
 
-    expect(result).toEqual({ bookingId: uuid })
+    expect(passengerRepository.findByFullName).toHaveBeenNthCalledWith(1, passengers[0].fullName)
+    expect(passengerRepository.findByFullName).toHaveBeenNthCalledWith(2, passengers[1].fullName)
+    expect(passengerRepository.save).toHaveBeenNthCalledWith(1, passengers[0])
+    expect(passengerRepository.save).toHaveBeenNthCalledWith(2, passengers[1])
     expect(repository.save).toHaveBeenCalledWith({
-      bookingId: uuid,
+      createdAt: defaultDate,
       customer: input.customer,
       date: input.date,
       flightNumber: input.flightNumber,
+      id: uuid,
       passengers: input.passengers,
       status: BookingStatus.CREATED,
+      updatedAt: defaultDate,
     })
     expect(publisher.publish).toHaveBeenCalledWith({
       attributes: {},
-      bookingId: uuid,
       date: input.date,
       flightNumber: input.flightNumber,
+      id: uuid,
       status: BookingStatus.CREATED,
       topic: process.env.TOPIC_BOOKINGS!,
     })
@@ -64,27 +82,24 @@ describe('MakeBooking Testing', () => {
       passengers: input.passengers,
       queueName: process.env.QUEUE_EMIT_TICKETS!,
     })
+    expect(result).toEqual({ bookingId: uuid })
   })
 
-  it('Should log and throw error when get some workflow error', async () => {
+  it('Should log and throw error when get some error', async () => {
+    const passengers = passengerFactory.buildList(1)
     const input = {
       customer: { email: faker.internet.email(), name: faker.person.fullName() },
       date: faker.date.soon(),
       flightNumber: faker.airline.flightNumber(),
-      passengers: [{ name: faker.person.fullName(), passportNumber: faker.string.alpha(8) }],
+      passengers,
     }
-    jest.spyOn(repository, 'save').mockRejectedValue(new Error())
+    jest.spyOn(passengerRepository, 'findByFullName').mockRejectedValue(new Error())
 
     await expect(useCase.execute(input)).rejects.toThrow()
 
-    expect(repository.save).toHaveBeenCalledWith({
-      bookingId: uuid,
-      customer: input.customer,
-      date: input.date,
-      flightNumber: input.flightNumber,
-      passengers: input.passengers,
-      status: BookingStatus.CREATED,
-    })
+    expect(passengerRepository.findByFullName).toHaveBeenCalledWith(passengers[0].fullName)
+    expect(passengerRepository.save).not.toHaveBeenCalled()
+    expect(repository.save).not.toHaveBeenCalled()
     expect(publisher.publish).not.toHaveBeenCalled()
     expect(sender.send).not.toHaveBeenCalled()
   })

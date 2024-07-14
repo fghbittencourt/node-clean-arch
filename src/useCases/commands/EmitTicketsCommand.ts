@@ -1,7 +1,7 @@
 import Command from '../../infrastructure/messaging/command'
 
 type EmitTicketsCommandPassenger = {
-  name: string;
+  fullName: string;
   passportNumber: string;
 };
 

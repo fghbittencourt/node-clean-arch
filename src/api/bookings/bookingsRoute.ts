@@ -15,7 +15,7 @@ const createBookingSchema = z.object({
   flight_number: z.string(),
   passengers: z.array(
     z.object({
-      name: z.string(),
+      full_name: z.string(),
       passport_number: z.string(),
     }),
   ),

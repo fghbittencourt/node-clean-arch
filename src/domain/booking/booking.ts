@@ -1,19 +1,19 @@
+import Passenger from '../passenger/passenger'
 import BookingStatus from './bookingStatus'
-import Passenger from './passenger'
 
-type Tickets = {
+export interface Tickets {
   passenger: Passenger;
   reservationStatus: 'DENIED' | 'OK';
   ticketNumber: string;
-};
+}
 
-type Customer = {
+export interface Customer {
   email: string;
   name: string;
-};
+}
 
 export default class Booking {
-  bookingId: string
+  createdAt: Date
 
   customer: Customer
 
@@ -21,28 +21,34 @@ export default class Booking {
 
   flightNumber: string
 
+  id: string
+
   passengers: Passenger[]
 
   status: BookingStatus
 
   tickets?: Tickets[]
 
+  updatedAt: Date
+
   constructor(
-    bookingId: string,
+    id: string,
     date: Date,
     passengers: Passenger[],
     flightNumber: string,
     customer: Customer,
   ) {
-    this.bookingId = bookingId
+    this.id = id
     this.date = date
     this.status = BookingStatus.CREATED
     this.passengers = passengers
     this.flightNumber = flightNumber
     this.tickets = undefined
     this.customer = customer
+    this.createdAt = new Date()
+    this.updatedAt = new Date()
 
-    if (!passengers.length) throw new Error('Mininum of 1 passenger per booking')
+    if (passengers?.length === 0) throw new Error('Mininum of 1 passenger per booking')
 
     if (date < new Date()) throw new Error('Date should be on the future')
   }

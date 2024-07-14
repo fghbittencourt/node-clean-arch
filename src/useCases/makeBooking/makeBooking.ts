@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import Booking from '../../domain/booking/booking'
 import BookingCreatedEvent from '../../domain/booking/bookingCreatedEvent'
 import BookingRepository from '../../domain/booking/bookingRepository'
-import DomainError from '../../infrastructure/base/errors/domainError'
+import Passenger from '../../domain/passenger/passenger'
+import PassengerRepository from '../../domain/passenger/passengerRepository'
 import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput'
 import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput'
 import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync'
@@ -17,7 +18,7 @@ export interface MakeBookingInput extends UseCaseInput {
   customer: { email: string; name: string };
   date: Date;
   flightNumber: string;
-  passengers: { name: string; passportNumber: string }[];
+  passengers: { fullName: string; passportNumber: string }[];
 }
 
 export interface MakeBookingOutput extends UseCaseOutput {
@@ -28,45 +29,56 @@ export interface MakeBookingOutput extends UseCaseOutput {
 export default class MakeBooking implements UseCaseSync {
   constructor(
     @inject('BookingRepository') public readonly repository: BookingRepository,
+    @inject('PassengerRepository') public readonly passengerRepository: PassengerRepository,
     @inject('Sender') public readonly sender: Sender,
     @inject('Publisher') public readonly publisher: Publisher,
   ) {}
 
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
     try {
-      // Cria o objeto de domínio
+      const passengers = await Promise.all(input.passengers.map(async (passenger) => {
+        const existingPassenger = await this.passengerRepository.findByFullName(passenger.fullName)
+        if (existingPassenger) return existingPassenger
+
+        return new Passenger(
+          uuidv4(),
+          passenger.fullName,
+          passenger.passportNumber,
+        )
+      }))
+
       const booking = new Booking(
         uuidv4(),
         input.date,
-        input.passengers,
+        passengers,
         input.flightNumber,
         input.customer,
       )
 
-      // Persiste
+      passengers.forEach(async (passenger) => this.passengerRepository.save(passenger))
       await this.repository.save(booking)
 
-      // Notifica o mundo do que acabou de acontecer
+      // Publishing event
       await this.publisher.publish(
         new BookingCreatedEvent(
-          booking.bookingId,
+          booking.id,
           booking.date,
           booking.status,
           booking.flightNumber,
         ),
       )
 
-      // Envia ordem para próxima fase (async)
+      // Send command to emit tickets
       await this.sender.send(
         new EmitTicketsCommand(
-          booking.bookingId,
+          booking.id,
           booking.date,
           booking.passengers,
           booking.flightNumber,
         ),
       )
 
-      return { bookingId: booking.bookingId }
+      return { bookingId: booking.id }
     } catch (err) {
       Logger.error(`Error in ${this.constructor.name}. `, {
         detail: err.detail,

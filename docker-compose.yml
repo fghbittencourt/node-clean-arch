@@ -11,6 +11,17 @@ services:
     ports:
       - 4500:4500
 
+  postgres:
+    container_name: postgres
+    profiles: ['tests', 'dev', 'db']
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password1234
+      POSTGRES_DB: node_clean_arch
+    ports:
+      - 5432:5432
+
   tests:
     container_name: tests
     profiles: ['tests']

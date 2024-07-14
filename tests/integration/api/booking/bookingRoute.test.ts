@@ -24,7 +24,7 @@ describe('Bookings Route testing', () => {
       flight_number: faker.number.int(10000),
       passengers: [
         {
-          name: faker.person.fullName(),
+          full_name: faker.person.fullName(),
           passport_number: faker.string.alpha(6),
         },
       ],
