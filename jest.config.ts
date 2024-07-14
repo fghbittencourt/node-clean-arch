@@ -2,7 +2,7 @@ export default {
   clearMocks: true,
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coveragePathIgnorePatterns: ['node_modules/', 'tests/'],
+  coveragePathIgnorePatterns: ['node_modules/', 'tests/', 'repositories/'],
   coverageReporters: ['text'],
   preset: 'ts-jest',
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
