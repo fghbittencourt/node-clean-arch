@@ -4,14 +4,19 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 function convertObjectKeys(obj: any): any {
-  const newObj: any = {}
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const newKey = key.replace(/_([a-z])/g, (match, group1) => group1.toUpperCase())
-      newObj[newKey] = obj[key]
+  if (Array.isArray(obj)) {
+    return obj.map(convertObjectKeys)
+  } if (obj !== null && typeof obj === 'object') {
+    const newObj: any = {}
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const newKey = key.replace(/_([a-z])/g, (match, group1) => group1.toUpperCase())
+        newObj[newKey] = convertObjectKeys(obj[key])
+      }
     }
+    return newObj
   }
-  return newObj
+  return obj
 }
 
 // Custom middleware to convert snake_case to camelCase
