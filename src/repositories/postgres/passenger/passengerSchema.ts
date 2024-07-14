@@ -9,13 +9,13 @@ export default new EntitySchema<Passenger>({
       nullable: false,
       type: 'timestamp',
     },
+    fullName: {
+      nullable: false,
+      type: 'varchar',
+    },
     id: {
       primary: true,
       type: 'uuid',
-    },
-    name: {
-      nullable: false,
-      type: 'varchar',
     },
     passportNumber: {
       nullable: false,

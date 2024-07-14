@@ -1,13 +1,13 @@
 import Booking from '../booking/booking'
 
 export default class Passenger {
-  bookings: Booking[]
+  bookings?: Booking[]
 
   createdAt: Date
 
-  id: string
+  fullName: string
 
-  name: string
+  id: string
 
   passportNumber: string
 
@@ -15,14 +15,12 @@ export default class Passenger {
 
   constructor(
     id: string,
-    name: string,
+    fullName: string,
     passportNumber: string,
-    bookings: Booking[],
   ) {
     this.id = id
-    this.name = name
+    this.fullName = fullName
     this.passportNumber = passportNumber
-    this.bookings = bookings
     this.createdAt = new Date()
     this.updatedAt = new Date()
   }

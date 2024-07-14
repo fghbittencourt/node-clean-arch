@@ -2,7 +2,8 @@ import { faker } from '@faker-js/faker'
 
 import Booking from '../../../../src/domain/booking/booking'
 import BookingStatus from '../../../../src/domain/booking/bookingStatus'
-import Passenger from '../../../../src/domain/booking/passenger'
+import Passenger from '../../../../src/domain/passenger/passenger'
+import passengerFactory from '../passenger/passengerFactory'
 import bookingFactory from './bookingFactory'
 
 describe('Booking testing', () => {
@@ -11,10 +12,7 @@ describe('Booking testing', () => {
   it('should create a Booking object properly', async () => {
     const uuid = faker.string.uuid()
     const date = new Date(new Date().setDate(new Date().getDate() + 1)) // tomorrow
-    const passengers = [
-      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
-      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
-    ]
+    const passengers = passengerFactory.buildList(1)
     const flightNumber = faker.airline.flightNumber()
     const customer = {
       email: faker.internet.email(),
@@ -34,10 +32,7 @@ describe('Booking testing', () => {
   it('should not create a Booking object if it has an invalid date', async () => {
     const uuid = faker.string.uuid()
     const date = new Date('1998-01-01')
-    const passengers = [
-      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
-      { name: faker.person.fullName(), passportNumber: faker.string.alpha(8) },
-    ]
+    const passengers = passengerFactory.buildList(1)
     const flightNumber = faker.airline.flightNumber()
     const customer = {
       email: faker.internet.email(),

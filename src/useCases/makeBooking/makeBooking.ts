@@ -5,6 +5,7 @@ import Booking from '../../domain/booking/booking'
 import BookingCreatedEvent from '../../domain/booking/bookingCreatedEvent'
 import BookingRepository from '../../domain/booking/bookingRepository'
 import Passenger from '../../domain/passenger/passenger'
+import PassengerRepository from '../../domain/passenger/passengerRepository'
 import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput'
 import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput'
 import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync'
@@ -17,7 +18,7 @@ export interface MakeBookingInput extends UseCaseInput {
   customer: { email: string; name: string };
   date: Date;
   flightNumber: string;
-  passengers: { name: string; passportNumber: string }[];
+  passengers: { fullName: string; passportNumber: string }[];
 }
 
 export interface MakeBookingOutput extends UseCaseOutput {
@@ -28,33 +29,36 @@ export interface MakeBookingOutput extends UseCaseOutput {
 export default class MakeBooking implements UseCaseSync {
   constructor(
     @inject('BookingRepository') public readonly repository: BookingRepository,
+    @inject('PassengerRepository') public readonly passengerRepository: PassengerRepository,
     @inject('Sender') public readonly sender: Sender,
     @inject('Publisher') public readonly publisher: Publisher,
   ) {}
 
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
     try {
-      // Domain objects
-      const bookingId = uuidv4()
-      const passengers = input.passengers.map((passenger) => new Passenger(
-        uuidv4(),
-        passenger.name,
-        passenger.passportNumber,
-        bookingId,
-      ))
+      const passengers = await Promise.all(input.passengers.map(async (passenger) => {
+        const existingPassenger = await this.passengerRepository.findByFullName(passenger.fullName)
+        if (existingPassenger) return existingPassenger
+
+        return new Passenger(
+          uuidv4(),
+          passenger.fullName,
+          passenger.passportNumber,
+        )
+      }))
 
       const booking = new Booking(
-        bookingId,
+        uuidv4(),
         input.date,
         passengers,
         input.flightNumber,
         input.customer,
       )
 
-      // Saving
+      passengers.forEach(async (passenger) => this.passengerRepository.save(passenger))
       await this.repository.save(booking)
 
-      // Publish event
+      // Publishing event
       await this.publisher.publish(
         new BookingCreatedEvent(
           booking.id,
@@ -64,7 +68,7 @@ export default class MakeBooking implements UseCaseSync {
         ),
       )
 
-      // Send command
+      // Send command to emit tickets
       await this.sender.send(
         new EmitTicketsCommand(
           booking.id,

@@ -6,10 +6,13 @@ import Logger from '../../../infrastructure/log/logger'
 
 @injectable()
 export default class DummyPassengerRepository implements PassengerRepository {
-  save = async (passenger: Passenger): Promise<Passenger> => {
+  async findByFullName(fullName: string): Promise<Passenger | null> {
+    Logger.debug('DummyDB: passenger findByFullName', fullName)
+    return Promise.resolve(null)
+  }
+
+  async save(passenger: Passenger): Promise<Passenger> {
     Logger.debug('DummyDB: passenger saved', passenger)
     return passenger
   }
-
-  constructor() {}
 }
