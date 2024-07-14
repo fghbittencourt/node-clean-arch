@@ -1,26 +1,28 @@
+import Booking from '../booking/booking'
+
 export default class Passenger {
-  bookingId: string
+  bookings: Booking[]
 
   createdAt: Date
 
-  name: string
+  id: string
 
-  passengerId: string
+  name: string
 
   passportNumber: string
 
   updatedAt: Date
 
   constructor(
-    passengerId: string,
+    id: string,
     name: string,
     passportNumber: string,
-    bookingId: string,
+    bookings: Booking[],
   ) {
-    this.passengerId = passengerId
+    this.id = id
     this.name = name
     this.passportNumber = passportNumber
-    this.bookingId = bookingId
+    this.bookings = bookings
     this.createdAt = new Date()
     this.updatedAt = new Date()
   }

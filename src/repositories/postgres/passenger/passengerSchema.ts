@@ -4,22 +4,18 @@ import Passenger from '../../../domain/passenger/passenger'
 
 export default new EntitySchema<Passenger>({
   columns: {
-    bookingId: {
-      nullable: false,
-      type: 'uuid',
-    },
     createdAt: {
       createDate: true,
       nullable: false,
       type: 'timestamp',
     },
+    id: {
+      primary: true,
+      type: 'uuid',
+    },
     name: {
       nullable: false,
       type: 'varchar',
-    },
-    passengerId: {
-      primary: true,
-      type: 'uuid',
     },
     passportNumber: {
       nullable: false,
@@ -31,6 +27,15 @@ export default new EntitySchema<Passenger>({
       type: 'timestamp',
     },
   },
-  name: Passenger.name,
+  name: 'Passengers',
+  relations: {
+    // Many to many relationship
+    bookings: {
+      cascade: false,
+      inverseSide: 'passengers',
+      target: 'Booking',
+      type: 'many-to-many',
+    },
+  },
   target: Passenger,
 })

@@ -1,15 +1,10 @@
 import { EntitySchema } from 'typeorm'
 
-import Booking from '../../../domain/booking/booking'
+import Booking, { Customer } from '../../../domain/booking/booking'
 import BookingStatus from '../../../domain/booking/bookingStatus'
-import Passenger from '../../../domain/passenger/passenger'
 
 export default new EntitySchema<Booking>({
   columns: {
-    bookingId: {
-      primary: true,
-      type: 'uuid',
-    },
     createdAt: {
       createDate: true,
       nullable: false,
@@ -23,6 +18,10 @@ export default new EntitySchema<Booking>({
       nullable: false,
       type: 'varchar',
     },
+    id: {
+      primary: true,
+      type: 'uuid',
+    },
     status: {
       enum: BookingStatus,
       nullable: false,
@@ -34,25 +33,36 @@ export default new EntitySchema<Booking>({
       type: 'timestamp',
     },
   },
-  name: Booking.name,
-  relations: {
-    // Same table ref
+  // Same table reference
+  embeddeds: {
     customer: {
-      inverseSide: 'booking',
-      joinColumn: true,
-      target: 'Booking',
-      type: 'one-to-one',
-    },
-    // One to many in different table
-    passengers: {
-      joinColumn: [
-        {
-          name: 'booking_id',
-          referencedColumnName: 'bookingId',
+      prefix: 'customer',
+      schema: new EntitySchema<Customer>({
+        columns: {
+          email: {
+            nullable: false,
+            type: 'varchar',
+          },
+          name: {
+            nullable: false,
+            type: 'varchar',
+          },
         },
-      ],
-      target: Passenger.name,
-      type: 'one-to-many',
+        name: 'Customer',
+      }),
+    },
+  },
+  name: 'Bookings',
+  relations: {
+    // Many to many relationship
+    passengers: {
+      cascade: false,
+      inverseSide: 'bookings',
+      joinTable: true,
+      onDelete: 'NO ACTION',
+      onUpdate: 'NO ACTION',
+      target: 'Passenger',
+      type: 'many-to-many',
     },
   },
   target: Booking,

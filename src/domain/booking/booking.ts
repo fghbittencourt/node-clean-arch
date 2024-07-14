@@ -13,8 +13,6 @@ export interface Customer {
 }
 
 export default class Booking {
-  bookingId: string
-
   createdAt: Date
 
   customer: Customer
@@ -22,6 +20,8 @@ export default class Booking {
   date: Date
 
   flightNumber: string
+
+  id: string
 
   passengers: Passenger[]
 
@@ -32,13 +32,13 @@ export default class Booking {
   updatedAt: Date
 
   constructor(
-    bookingId: string,
+    id: string,
     date: Date,
     passengers: Passenger[],
     flightNumber: string,
     customer: Customer,
   ) {
-    this.bookingId = bookingId
+    this.id = id
     this.date = date
     this.status = BookingStatus.CREATED
     this.passengers = passengers

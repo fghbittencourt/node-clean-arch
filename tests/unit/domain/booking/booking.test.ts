@@ -23,7 +23,7 @@ describe('Booking testing', () => {
 
     booking = new Booking(uuid, date, passengers, flightNumber, customer)
 
-    expect(booking.bookingId).toBe(uuid)
+    expect(booking.id).toBe(uuid)
     expect(booking.status).toBe(BookingStatus.CREATED)
     expect(booking.date).toBe(date)
     expect(booking.passengers).toBe(passengers)

@@ -57,7 +57,7 @@ export default class MakeBooking implements UseCaseSync {
       // Publish event
       await this.publisher.publish(
         new BookingCreatedEvent(
-          booking.bookingId,
+          booking.id,
           booking.date,
           booking.status,
           booking.flightNumber,
@@ -67,14 +67,14 @@ export default class MakeBooking implements UseCaseSync {
       // Send command
       await this.sender.send(
         new EmitTicketsCommand(
-          booking.bookingId,
+          booking.id,
           booking.date,
           booking.passengers,
           booking.flightNumber,
         ),
       )
 
-      return { bookingId: booking.bookingId }
+      return { bookingId: booking.id }
     } catch (err) {
       Logger.error(`Error in ${this.constructor.name}. `, {
         detail: err.detail,
