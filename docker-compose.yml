@@ -29,6 +29,7 @@ services:
     command:
       - redpanda
       - start
+      - --mode dev-container
       - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
       - --advertise-kafka-addr internal://redpanda-0:9092,external://localhost:19092
       - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
@@ -38,7 +39,6 @@ services:
       - --advertise-rpc-addr redpanda-0:33145
       - --smp 1 # 1 core
       - --reserve-memory 0M
-      - --mode dev-container
       - --default-log-level=info
     volumes:
       - redpanda-0:/var/lib/redpanda/data
