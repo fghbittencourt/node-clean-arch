@@ -10,10 +10,10 @@ create.env-file: ## Creates a local .env file based on sample
 
 setup: create.env-file install ## Setup environment
 
-test: format.check create.env-file docker.tests ## Run tests locally
+test: format.check create.env-file docker.tests.run ## Run tests locally
 
 install: ## Install packages
 	pnpm install
 
-dev: setup docker.run ## Install and run the server locally
+dev: setup docker.dev.run ## Install and run the server locally
 	pnpm dev:webapi

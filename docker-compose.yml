@@ -1,7 +1,7 @@
 services:
   api:
     container_name: webapi
-    profiles: ['dev']
+    profiles: ['api']
     build:
       context: .
       dockerfile: ./docker/Dockerfile
@@ -13,7 +13,7 @@ services:
 
   postgres:
     container_name: postgres
-    profiles: ['tests', 'dev', 'db']
+    profiles: ['tests', 'dev', 'db', 'api']
     image: postgres:13-alpine
     environment:
       POSTGRES_USER: root
@@ -25,7 +25,7 @@ services:
   redpanda-0:
     container_name: redpanda-0 # single broker
     image: docker.redpanda.com/redpandadata/redpanda:v23.2.21
-    profiles: ['dev']
+    profiles: ['dev', 'api']
     command:
       - redpanda
       - start
@@ -51,7 +51,7 @@ services:
   redpanda-console:
     container_name: redpanda-console
     image: docker.redpanda.com/redpandadata/console:v2.6.1
-    profiles: ['dev']
+    profiles: ['dev', 'api']
     entrypoint: /bin/sh
     command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
     environment:

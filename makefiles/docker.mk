@@ -1,23 +1,25 @@
-docker.start.recreate: ## Recreate and get containers up
-	docker compose --profile dev up --detach --force-recreate
-
-docker.rebuild: ## Rebuild and get containers up for development
+docker.dev.rebuild: ## Rebuild and get containers up for development (db, messaging)
 	docker compose --profile dev up --build
 
-docker.run: ## Get containers up for development
+docker.dev.run: ## Get containers up for development (db, messaging)
 	docker compose --profile dev up --detach
 
-docker.run.db: ## Get database container up
+docker.db.run: ## Get database container up
 	docker-compose --profile db up --detach
 
-docker.tests: ##format.check   Run all testes
+docker.api.run: ## Get api and database containers up
+	docker-compose --profile api up --build --detach
+
+docker.api.spy: ## Show API container logs
+	docker compose logs --follow api
+
+docker.tests.run: ## Run all tests
 	docker compose --profile tests up --build --timeout 10 --abort-on-container-exit tests
 
 docker.stop: ## Get all containers down
-	docker compose down
+	docker compose --profile "*" down
 
 docker.remove: ## Stop and remove containers
-	docker compose stop && docker compose rm -vf
+	docker compose --profile "*" stop && docker compose rm --volumes --force
 
-docker.spy: ## Show API container logs
-	docker compose logs -f api
+
