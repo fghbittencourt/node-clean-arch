@@ -1,9 +1,9 @@
 import Logger from '../../log/logger'
-import QueueMessage from '../queueMessage'
+import Message from '../message'
 import Sender from './sender'
 
 export default class DummySender implements Sender {
-  send = async (message: QueueMessage): Promise<void> => {
+  send = async (message: Message): Promise<void> => {
     Logger.info(
       `Dummy Message Sender - ${message.constructor.name} sent`,
       message,
@@ -11,7 +11,7 @@ export default class DummySender implements Sender {
   }
 
   sendMany = async (
-    message: QueueMessage[],
+    message: Message[],
     queueName: string,
   ): Promise<void> => {
     Logger.info(

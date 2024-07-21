@@ -1,5 +1,5 @@
-import QueueMessage from '../queueMessage'
+import Message from '../message'
 
 export default interface Sender {
-  send(messsage: QueueMessage): Promise<void>;
+  send(messsage: Message): Promise<void>;
 }

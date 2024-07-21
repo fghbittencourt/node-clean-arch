@@ -3,13 +3,11 @@ import { faker } from '@faker-js/faker'
 import BookingRepository from '../../../../src/domain/booking/bookingRepository'
 import BookingStatus from '../../../../src/domain/booking/bookingStatus'
 import PassengerRepository from '../../../../src/domain/passenger/passengerRepository'
-import Publisher from '../../../../src/infrastructure/messaging/publisher/publisher'
 import Sender from '../../../../src/infrastructure/messaging/sender/sender'
 import MakeBooking from '../../../../src/useCases/makeBooking/makeBooking'
 import mockedBookingRepository from '../../domain/booking/mockedBookingRepository'
 import mockedPassengerRepository from '../../domain/passenger/mockedPassengerRepository'
 import passengerFactory from '../../domain/passenger/passengerFactory'
-import mockedPublisher from '../../infrastructure/messaging/publisher/mockedPublisher'
 import mockedSender from '../../infrastructure/messaging/sender/mockedSender'
 
 const uuid = faker.string.uuid()
@@ -22,15 +20,13 @@ describe('MakeBooking Testing', () => {
   let passengerRepository: PassengerRepository
   let useCase: MakeBooking
   let sender: Sender
-  let publisher: Publisher
   let defaultDate: Date
 
   beforeAll(() => {
     sender = mockedSender()
-    publisher = mockedPublisher()
     repository = mockedBookingRepository()
     passengerRepository = mockedPassengerRepository()
-    useCase = new MakeBooking(repository, passengerRepository, sender, publisher)
+    useCase = new MakeBooking(repository, passengerRepository, sender)
 
     defaultDate = new Date()
     jest.useFakeTimers().setSystemTime(defaultDate)
@@ -64,23 +60,19 @@ describe('MakeBooking Testing', () => {
       status: BookingStatus.CREATED,
       updatedAt: defaultDate,
     })
-    expect(publisher.publish).toHaveBeenCalledWith({
-      attributes: {},
+    expect(sender.send).toHaveBeenNthCalledWith(1, {
       date: input.date,
       flightNumber: input.flightNumber,
       id: uuid,
       status: BookingStatus.CREATED,
       topic: process.env.TOPIC_BOOKINGS!,
     })
-    expect(sender.send).toHaveBeenCalledWith({
-      attributes: {},
+    expect(sender.send).toHaveBeenNthCalledWith(2, {
       bookingId: uuid,
-      commandName: 'EmitTicketsCommand',
       date: input.date,
-      delaySeconds: 1,
       flightNumber: input.flightNumber,
       passengers: input.passengers,
-      queueName: process.env.QUEUE_EMIT_TICKETS!,
+      topic: process.env.QUEUE_EMIT_TICKETS!,
     })
     expect(result).toEqual({ bookingId: uuid })
   })
@@ -100,7 +92,6 @@ describe('MakeBooking Testing', () => {
     expect(passengerRepository.findByFullName).toHaveBeenCalledWith(passengers[0].fullName)
     expect(passengerRepository.save).not.toHaveBeenCalled()
     expect(repository.save).not.toHaveBeenCalled()
-    expect(publisher.publish).not.toHaveBeenCalled()
     expect(sender.send).not.toHaveBeenCalled()
   })
 })
