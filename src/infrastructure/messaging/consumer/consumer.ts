@@ -1,29 +1,18 @@
 export interface MessageData {
-  attributes?: { [k: string]: string } | null;
-  data?: Uint8Array | null | string;
-  messageId?: null | string;
+  attributes: number
+  key: Buffer | null
+  offset: string
+  timestamp: string
+  value: Buffer | null
 }
-
-export interface ReceivedMessage {
-  ackId?: null | string;
-  message?: MessageData | null;
-}
-
-export interface PullResponse {
-  receivedMessages?: ReceivedMessage[] | null;
-}
-
 export interface ConsumerEvents {
-  deletingError: [Error, ReceivedMessage];
   empty: [];
-  messageProcessed: [ReceivedMessage];
-  messageReceived: [ReceivedMessage];
-  processingError: [Error, ReceivedMessage];
-  pullingError: [Error];
-  responseProcessed: [PullResponse];
+  messageProcessed: [MessageData];
+  messageReceived: [MessageData];
+  processingError: [Error, MessageData];
   started: [];
   stopped: [];
-  timeoutError: [Error, ReceivedMessage];
+  timeoutError: [Error, MessageData];
 }
 
 export default interface Consumer {

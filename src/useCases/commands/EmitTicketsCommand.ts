@@ -14,7 +14,7 @@ export default class EmitTicketsCommand implements Message {
 
   passengers: EmitTicketsCommandPassenger[]
 
-  topic = process.env.QUEUE_EMIT_TICKETS!
+  topic = process.env.TOPIC_EMIT_TICKETS!
 
   constructor(
     bookingId: string,

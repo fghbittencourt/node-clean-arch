@@ -72,7 +72,7 @@ describe('MakeBooking Testing', () => {
       date: input.date,
       flightNumber: input.flightNumber,
       passengers: input.passengers,
-      topic: process.env.QUEUE_EMIT_TICKETS!,
+      topic: process.env.TOPIC_EMIT_TICKETS!,
     })
     expect(result).toEqual({ bookingId: uuid })
   })

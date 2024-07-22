@@ -1,13 +1,13 @@
 docker.dev.rebuild: ## Rebuild and get containers up for development (db, messaging)
 	docker compose --profile dev up --build
 
-docker.dev.run: ## Get containers up for development (db, messaging)
+docker.dev.run: ## Get containers up (db, messaging)
 	docker compose --profile dev up --detach
 
-docker.db.run: ## Get database container up
+docker.db.run: ## Get containers up (db)
 	docker-compose --profile db up --detach
 
-docker.api.run: ## Get api and database containers up
+docker.api.run: ## Get containers up (webapi, db, messaging)
 	docker-compose --profile api up --build --detach
 
 docker.api.spy: ## Show API container logs

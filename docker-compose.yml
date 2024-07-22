@@ -7,7 +7,11 @@ services:
       dockerfile: ./docker/Dockerfile
     env_file: .env
     environment:
-      APP_NAME: webapi
+      APP_NAME: node-clean-arch-api
+      PORT: 4500
+      APP_TYPE: webapi
+      MESSAGE_SENDER: kafka
+      KAFKA_BROKERS: redpanda-0:9092
     ports:
       - 4500:4500
 

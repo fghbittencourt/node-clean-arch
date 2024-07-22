@@ -4,6 +4,7 @@ import BookingRepository from '../domain/booking/bookingRepository'
 import PassengerRepository from '../domain/passenger/passengerRepository'
 import Logger from '../infrastructure/log/logger'
 import DummySender from '../infrastructure/messaging/sender/dummySender'
+import KafkaSender from '../infrastructure/messaging/sender/kafkaSender'
 import Sender from '../infrastructure/messaging/sender/sender'
 import DummyBookingRepository from '../repositories/dummyDb/booking/dummyBookingRepository'
 import DummyPassengerRepository from '../repositories/dummyDb/passenger/dummyPassengerRepository'
@@ -48,9 +49,18 @@ const registerRepos = async (container: DependencyContainer): Promise<void> => {
 const registerMessageSender = async (
   container: DependencyContainer,
 ): Promise<void> => {
-  container.register<Sender>('Sender', {
-    useClass: DummySender,
-  })
+  if (process.env.MESSAGE_SENDER === 'dummy') {
+    container.register<Sender>('Sender', {
+      useClass: DummySender,
+    })
+  }
+
+  if (process.env.MESSAGE_SENDER === 'kafka') {
+    // Register KafkaSender
+    container.register<Sender>('Sender', {
+      useClass: KafkaSender,
+    })
+  }
 }
 
 export default async (container: DependencyContainer): Promise<void> => {
