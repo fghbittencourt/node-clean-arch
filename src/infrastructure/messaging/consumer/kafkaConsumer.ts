@@ -2,6 +2,7 @@ import { EventEmitter } from 'events'
 import {
   Consumer as KConsumer, Kafka, KafkaMessage, logLevel,
 } from 'kafkajs'
+import promiseRetry from 'promise-retry'
 
 import AsyncController from '../../base/api/asyncController'
 import Logger from '../../log/logger'
@@ -14,6 +15,7 @@ interface ProcessMessage {
   isStale(): boolean
   message: KafkaMessage,
   resolveOffset(offset: string): void,
+  topic: string
 }
 
 export interface KafkaConsumerOpts {
@@ -91,6 +93,8 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
         Logger.error('Error stopping consumer', error)
       }
     }
+
+    process.exit(1)
   }
 
   async #processMessage(data: ProcessMessage) {
@@ -100,19 +104,27 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     const jsonString = content.toString('utf-8')
     const controllerMessage = JSON.parse(jsonString)
 
-    try {
-      this.emit('messageReceived', controllerMessage)
+    this.emit('messageReceived', controllerMessage)
 
-      await data.controller.handle(controllerMessage.data)
-      data.resolveOffset(data.message.offset)
+    await promiseRetry(async (retry, number) => {
+      Logger.debug(`Attempt number ${number} on topic: ${data.topic}`)
 
-      this.emit('messageProcessed', controllerMessage)
+      try {
+        await data.controller.handle(controllerMessage.data)
 
-      await data.heartbeat()
-    } catch (error) {
-      Logger.error('Error processing message', error)
-      this.emit('processingError', error, controllerMessage)
-    }
+        this.emit('messageProcessed', controllerMessage)
+      } catch (error) {
+        this.emit('processingError', error, controllerMessage)
+        retry(error)
+      }
+      // TODO put this value on class opts
+    }, { retries: 2 }).catch(() => {
+      // TODO put this message on DLQ (I'll need a kafka producer on the constructor)
+      Logger.error(`Offset ${data.message.offset} put on DLQ`)
+    })
+
+    data.resolveOffset(data.message.offset)
+    await data.heartbeat()
   }
 
   addHandler<T extends keyof ConsumerEvents>(
@@ -165,14 +177,11 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
           if (controller) {
             const promises = batch.messages.map((message) => this.#processMessage({
-              controller, heartbeat, isRunning, isStale, message, resolveOffset,
+              controller, heartbeat, isRunning, isStale, message, resolveOffset, topic: batch.topic,
             }))
 
             await Promise.all(promises)
           }
-
-          // implement some fibonacci long polling strategy
-          // await new Promise((resolve) => { setTimeout(resolve, 3000) })
         },
         eachBatchAutoResolve: false,
       })
