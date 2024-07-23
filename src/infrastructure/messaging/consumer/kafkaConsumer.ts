@@ -1,9 +1,20 @@
 import { EventEmitter } from 'events'
-import { Consumer as KConsumer, Kafka, logLevel } from 'kafkajs'
+import {
+  Consumer as KConsumer, Kafka, KafkaMessage, logLevel,
+} from 'kafkajs'
 
 import AsyncController from '../../base/api/asyncController'
 import Logger from '../../log/logger'
 import Consumer, { ConsumerEvents } from './consumer'
+
+interface ProcessMessage {
+  controller: AsyncController
+  heartbeat(): Promise<void>,
+  isRunning(): boolean,
+  isStale(): boolean
+  message: KafkaMessage,
+  resolveOffset(offset: string): void,
+}
 
 export interface KafkaConsumerOpts {
   brookers: string[]
@@ -19,7 +30,6 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     }
   }
 
-  // Static methods
   static create = async (options: KafkaConsumerOpts): Promise<Consumer> => {
     await KafkaConsumer.assertOptions(options)
     const obj = new KafkaConsumer(options)
@@ -27,7 +37,6 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     return obj
   }
 
-  // Properties
   brookers: string[]
 
   consumer: KConsumer
@@ -77,7 +86,6 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
   async #disconnect(): Promise<void> {
     if (!this.stopped) {
       try {
-        Logger.info('Disconnecting consumer')
         await this.consumer?.stop()
       } catch (error) {
         Logger.error('Error stopping consumer', error)
@@ -85,7 +93,28 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     }
   }
 
-  // Events
+  async #processMessage(data: ProcessMessage) {
+    if (!data.isRunning() || data.isStale()) return
+
+    const content = Buffer.from(data.message.value!)
+    const jsonString = content.toString('utf-8')
+    const controllerMessage = JSON.parse(jsonString)
+
+    try {
+      this.emit('messageReceived', controllerMessage)
+
+      await data.controller.handle(controllerMessage.data)
+      data.resolveOffset(data.message.offset)
+
+      this.emit('messageProcessed', controllerMessage)
+
+      await data.heartbeat()
+    } catch (error) {
+      Logger.error('Error processing message', error)
+      this.emit('processingError', error, controllerMessage)
+    }
+  }
+
   addHandler<T extends keyof ConsumerEvents>(
     event: T,
     handler: (...args: unknown[]) => void,
@@ -132,19 +161,18 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
           isStale,
           resolveOffset,
         }) => {
-          // Turn this shit into promises
-          batch.messages.forEach(async (message) => {
-            if (!isRunning() || isStale()) return
+          const controller = this.controllers.find((c) => c.topic() === batch.topic)
 
-            const content = Buffer.from(message.value!)
+          if (controller) {
+            const promises = batch.messages.map((message) => this.#processMessage({
+              controller, heartbeat, isRunning, isStale, message, resolveOffset,
+            }))
 
-            Logger.info(`Message processed!! ${content.toString('utf-8')}`)
+            await Promise.all(promises)
+          }
 
-            // process message
-            this.emit('messageProcessed', message)
-            resolveOffset(message.offset)
-            await heartbeat()
-          })
+          // implement some fibonacci long polling strategy
+          // await new Promise((resolve) => { setTimeout(resolve, 3000) })
         },
         eachBatchAutoResolve: false,
       })
@@ -152,8 +180,6 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
   }
 
   async stop(): Promise<void> {
-    Logger.debug('Stopping consumer')
-
     await this.#disconnect()
 
     this.stopped = true
@@ -161,6 +187,6 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
   }
 
   get isRunning(): boolean {
-    throw new Error('Method not implemented.')
+    return !this.stopped
   }
 }

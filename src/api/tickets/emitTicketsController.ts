@@ -6,8 +6,6 @@ export default class EmitTicketsController extends AsyncController {
   async handle(receivedMessage: Message): Promise<void> {
     Logger.info('emitTickets async controller received message', receivedMessage)
 
-    await new Promise((resolve) => { setTimeout(resolve, 1000) })
-
     Logger.info('emitTickets async controller processed message')
   }
 

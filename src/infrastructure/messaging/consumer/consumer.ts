@@ -6,7 +6,6 @@ export interface MessageData {
   value: Buffer | null
 }
 export interface ConsumerEvents {
-  empty: [];
   messageProcessed: [MessageData];
   messageReceived: [MessageData];
   processingError: [Error, MessageData];
