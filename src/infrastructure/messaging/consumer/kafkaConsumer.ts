@@ -79,7 +79,7 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     //   minBytes: <Number>,
     //   maxBytes: <Number>,
     //   maxWaitTimeInMs: <Number>,
-    //   retry: <Object>,
+    //   retry: <Object>, //connection retry
     //   maxInFlightRequests: <Number>,
     //   rackId: <String>
     // })
