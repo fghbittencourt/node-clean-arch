@@ -2,10 +2,10 @@ import { container } from 'tsyringe'
 import { Worker } from 'worker_threads'
 
 import Logger from '../infrastructure/log/logger'
-import KafkaConsumer from '../infrastructure/messaging/consumer/kafkaConsumer'
+import KafkaConsumer, { Parallelism } from '../infrastructure/messaging/consumer/kafkaConsumer'
 import bootstrapper from './bootstrapper'
 import EmitTicketsController from './tickets/emitTicketsController'
-import SomethingController from './tickets/somethingController'
+import SomethingController from './tickets/errorController'
 
 const getWorkerPath = async (): Promise<string> => {
   const env = process.env.NODE_ENV
@@ -35,6 +35,7 @@ export default async (appName: string): Promise<void> => {
       brookers: process.env.KAFKA_BROKERS?.split(',') || [],
       controllers,
       groupId: appName,
+      parallelism: Parallelism.BATCH_LEVEL,
       topics: controllers.map((c) => c.topic()),
     },
   )

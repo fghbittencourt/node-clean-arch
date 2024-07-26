@@ -36,6 +36,7 @@ export default class KafkaSender implements Sender {
       await producer.send({
         messages: [{ value: JSON.stringify(cloudEvent) }],
         topic: message.topic,
+        // TODO put timeout here
       })
 
       Logger.info(
@@ -58,6 +59,8 @@ export default class KafkaSender implements Sender {
         brokers: process.env.KAFKA_BROKERS!.split(', '),
         clientId: process.env.KAFKA_GROUP_ID,
         logLevel: logLevel.INFO,
+        //   sessionTimeout: <Number>,
+        // TODO put timeout here and other variables
       })
 
       this.#producer = broker.producer()

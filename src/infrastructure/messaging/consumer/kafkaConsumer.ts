@@ -18,10 +18,15 @@ interface ProcessMessage {
   topic: string
 }
 
+export enum Parallelism {
+  BATCH_LEVEL = 'BATCH_LEVEL',
+  NO_PARALLELISM = 'NO_PARALLELISM',
+}
 export interface KafkaConsumerOpts {
   brookers: string[]
   controllers: AsyncController[]
   groupId: string;
+  parallelism?: Parallelism;
   topics: string[];
 }
 
@@ -47,6 +52,8 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
   groupId: string
 
+  parallelism: Parallelism
+
   stopped: boolean
 
   topics: string[]
@@ -59,30 +66,15 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     this.groupId = options.groupId
     this.topics = options.topics
     this.controllers = options.controllers
+    this.parallelism = options.parallelism ?? Parallelism.BATCH_LEVEL
 
     const kafka = new Kafka({
       brokers: this.brookers,
       logLevel: logLevel.WARN,
+      //   sessionTimeout: <Number>,
     })
 
     this.consumer = kafka.consumer({ groupId: this.groupId })
-
-    // kafka.consumer({
-    //   groupId: <String>,
-    //   partitionAssigners: <Array>,
-    //   sessionTimeout: <Number>,
-    //   rebalanceTimeout: <Number>,
-    //   heartbeatInterval: <Number>,
-    //   metadataMaxAge: <Number>,
-    //   allowAutoTopicCreation: <Boolean>,
-    //   maxBytesPerPartition: <Number>,
-    //   minBytes: <Number>,
-    //   maxBytes: <Number>,
-    //   maxWaitTimeInMs: <Number>,
-    //   retry: <Object>, //connection retry
-    //   maxInFlightRequests: <Number>,
-    //   rackId: <String>
-    // })
   }
 
   async #disconnect(): Promise<void> {
@@ -176,11 +168,34 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
           const controller = this.controllers.find((c) => c.topic() === batch.topic)
 
           if (controller) {
-            const promises = batch.messages.map((message) => this.#processMessage({
-              controller, heartbeat, isRunning, isStale, message, resolveOffset, topic: batch.topic,
-            }))
+            if (this.parallelism === Parallelism.BATCH_LEVEL) {
+              const promises = batch.messages.map(async (message) => this.#processMessage({
+                controller,
+                heartbeat,
+                isRunning,
+                isStale,
+                message,
+                resolveOffset,
+                topic: batch.topic,
+              }))
 
-            await Promise.all(promises)
+              await Promise.all(promises)
+            } else {
+              // NO_PARALLELISM
+              // eslint-disable-next-line no-restricted-syntax
+              for (const message of batch.messages) {
+                // eslint-disable-next-line no-await-in-loop
+                await this.#processMessage({
+                  controller,
+                  heartbeat,
+                  isRunning,
+                  isStale,
+                  message,
+                  resolveOffset,
+                  topic: batch.topic,
+                })
+              }
+            }
           }
         },
         eachBatchAutoResolve: false,

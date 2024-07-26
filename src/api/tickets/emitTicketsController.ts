@@ -5,8 +5,6 @@ import Message from '../../infrastructure/messaging/message'
 export default class EmitTicketsController extends AsyncController {
   async handle(receivedMessage: Message): Promise<void> {
     Logger.info('EmitTicketsController async controller received message', receivedMessage)
-
-    throw new Error('EmitTicketsController async controller not implemented')
   }
 
   topic(): string {
