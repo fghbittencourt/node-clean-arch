@@ -2,7 +2,8 @@ import { container } from 'tsyringe'
 import { Worker } from 'worker_threads'
 
 import Logger from '../infrastructure/log/logger'
-import KafkaConsumer, { Parallelism } from '../infrastructure/messaging/consumer/kafkaConsumer'
+import KafkaConsumer from '../infrastructure/messaging/consumer/kafkaConsumer'
+import KafkaSender from '../infrastructure/messaging/sender/kafkaSender'
 import bootstrapper from './bootstrapper'
 import EmitTicketsController from './tickets/emitTicketsController'
 import SomethingController from './tickets/errorController'
@@ -29,13 +30,15 @@ export default async (appName: string): Promise<void> => {
 
   Logger.info(`Worker ${appName} initializing...`)
 
+  // Sender
+
   // Consumer
   const consumer = await KafkaConsumer.create(
     {
       brookers: process.env.KAFKA_BROKERS?.split(',') || [],
       controllers,
       groupId: appName,
-      parallelism: Parallelism.BATCH_LEVEL,
+      sender: container.resolve(KafkaSender),
       topics: controllers.map((c) => c.topic()),
     },
   )

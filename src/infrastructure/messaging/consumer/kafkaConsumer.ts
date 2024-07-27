@@ -6,6 +6,7 @@ import promiseRetry from 'promise-retry'
 
 import AsyncController from '../../base/api/asyncController'
 import Logger from '../../log/logger'
+import KafkaSender from '../sender/kafkaSender'
 import Consumer, { ConsumerEvents } from './consumer'
 
 interface ProcessMessage {
@@ -18,15 +19,13 @@ interface ProcessMessage {
   topic: string
 }
 
-export enum Parallelism {
-  BATCH_LEVEL = 'BATCH_LEVEL',
-  NO_PARALLELISM = 'NO_PARALLELISM',
-}
 export interface KafkaConsumerOpts {
+  batchSize?: 'LIMITS_ARE_FOR_MUNICIPALITIES' | number
   brookers: string[]
   controllers: AsyncController[]
   groupId: string;
-  parallelism?: Parallelism;
+  minMessageRetries?: number
+  sender: KafkaSender
   topics: string[];
 }
 
@@ -44,6 +43,8 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     return obj
   }
 
+  batchSize: number
+
   brookers: string[]
 
   consumer: KConsumer
@@ -52,7 +53,9 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
   groupId: string
 
-  parallelism: Parallelism
+  minMessageRetries: number
+
+  sender: KafkaSender
 
   stopped: boolean
 
@@ -66,12 +69,19 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     this.groupId = options.groupId
     this.topics = options.topics
     this.controllers = options.controllers
-    this.parallelism = options.parallelism ?? Parallelism.BATCH_LEVEL
+    this.minMessageRetries = options.minMessageRetries ?? 4
+    this.sender = options.sender
+
+    if (options.batchSize === 'LIMITS_ARE_FOR_MUNICIPALITIES') {
+      this.batchSize = Number.MAX_SAFE_INTEGER
+    } else {
+      this.batchSize = options.batchSize || 10
+    }
 
     const kafka = new Kafka({
       brokers: this.brookers,
       logLevel: logLevel.WARN,
-      //   sessionTimeout: <Number>,
+      // sessionTimeout: <Number>,
     })
 
     this.consumer = kafka.consumer({ groupId: this.groupId })
@@ -94,25 +104,27 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
     const content = Buffer.from(data.message.value!)
     const jsonString = content.toString('utf-8')
-    const controllerMessage = JSON.parse(jsonString)
+    const rawMessage = JSON.parse(jsonString)
 
-    this.emit('messageReceived', controllerMessage)
+    // TODO put some logic to convert to defined message formats based on the payload
+    const messageData = rawMessage.data // here I'm assuming it's a CloudEvent
+
+    this.emit('messageReceived', rawMessage)
 
     await promiseRetry(async (retry, number) => {
       Logger.debug(`Attempt number ${number} on topic: ${data.topic}`)
 
       try {
-        await data.controller.handle(controllerMessage.data)
+        await data.controller.handle(messageData)
 
-        this.emit('messageProcessed', controllerMessage)
+        this.emit('messageProcessed', rawMessage)
       } catch (error) {
-        this.emit('processingError', error, controllerMessage)
+        this.emit('processingError', error, rawMessage)
         retry(error)
       }
-      // TODO put this value on class opts
-    }, { retries: 2 }).catch(() => {
-      // TODO put this message on DLQ (I'll need a kafka producer on the constructor)
-      Logger.error(`Offset ${data.message.offset} put on DLQ`)
+    }, { retries: this.minMessageRetries }).catch(async () => {
+      await this.sender.sendToDLQ(rawMessage, data.topic)
+      Logger.error(`Offset ${data.message.offset} has been put on DLQ`)
     })
 
     data.resolveOffset(data.message.offset)
@@ -168,8 +180,10 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
           const controller = this.controllers.find((c) => c.topic() === batch.topic)
 
           if (controller) {
-            if (this.parallelism === Parallelism.BATCH_LEVEL) {
-              const promises = batch.messages.map(async (message) => this.#processMessage({
+            const batchMessages = batch.messages.slice(0, this.batchSize)
+
+            const promises = batchMessages.map(
+              async (message) => this.#processMessage({
                 controller,
                 heartbeat,
                 isRunning,
@@ -177,25 +191,12 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
                 message,
                 resolveOffset,
                 topic: batch.topic,
-              }))
+              }),
+            )
 
-              await Promise.all(promises)
-            } else {
-              // NO_PARALLELISM
-              // eslint-disable-next-line no-restricted-syntax
-              for (const message of batch.messages) {
-                // eslint-disable-next-line no-await-in-loop
-                await this.#processMessage({
-                  controller,
-                  heartbeat,
-                  isRunning,
-                  isStale,
-                  message,
-                  resolveOffset,
-                  topic: batch.topic,
-                })
-              }
-            }
+            Logger.warn(`promises to be executed Length: ${promises.length}`)
+
+            await Promise.all(promises)
           }
         },
         eachBatchAutoResolve: false,

@@ -1,10 +1,12 @@
 import { Kafka, Producer, logLevel } from 'kafkajs'
+import { injectable } from 'tsyringe'
 
 import Logger from '../../log/logger'
 import CloudEventDecorator from '../eventDecorator'
 import Message from '../message'
 import Sender from './sender'
 
+@injectable()
 export default class KafkaSender implements Sender {
   #disconnect = async (): Promise<void> => {
     if (this.#producer) {
@@ -19,29 +21,40 @@ export default class KafkaSender implements Sender {
     }
   }
 
+  #dlqSufix : string
+
   #producer?: Producer
 
-  send = async (message: Message): Promise<void> => {
-    if (!message.topic) {
+  #sendMessage = async (
+    message: Message,
+    topic: string,
+    decorateMessageAsCloudEvent = true,
+  ): Promise<void> => {
+    if (!topic) {
       throw new Error('Topic is required to send message. Check property "topic" on your event/command')
     }
 
-    const decorator = new CloudEventDecorator(message)
-    const cloudEvent = await decorator.decorateEvent()
+    let messageToBeSend : unknown = message
+    if (decorateMessageAsCloudEvent) {
+      const decorator = new CloudEventDecorator(message)
+      const cloudEvent = await decorator.decorateEvent()
+
+      messageToBeSend = cloudEvent
+    }
 
     try {
       const producer = await this.#getProducer()
       await producer.connect()
 
       await producer.send({
-        messages: [{ value: JSON.stringify(cloudEvent) }],
-        topic: message.topic,
+        messages: [{ value: JSON.stringify(messageToBeSend) }],
+        topic,
         // TODO put timeout here
       })
 
       Logger.info(
-        `Kafka Message Sender - ${message.constructor.name} published on topic ${message.topic}`,
-        { message },
+        `Kafka Message Sender - ${message.constructor.name} sent to topic ${topic}`,
+        message,
       )
     } catch (error) {
       Logger.error('Error while sending message to Kafka', { error })
@@ -49,7 +62,17 @@ export default class KafkaSender implements Sender {
     }
   }
 
+  send = async (message: Message): Promise<void> => {
+    await this.#sendMessage(message, message.topic)
+  }
+
+  sendToDLQ = async (rawMessage: Message, originalTopic: string): Promise<void> => {
+    const dlqTopic = `${originalTopic}${this.#dlqSufix}`
+    await this.#sendMessage(rawMessage, dlqTopic, false)
+  }
+
   constructor() {
+    this.#dlqSufix = '.DLQ'
     process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
   }
 
