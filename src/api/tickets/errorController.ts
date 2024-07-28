@@ -2,14 +2,12 @@ import AsyncController from '../../infrastructure/base/api/asyncController'
 import Logger from '../../infrastructure/log/logger'
 import Message from '../../infrastructure/messaging/message'
 
-export default class ErrorController extends AsyncController {
+export default class ErrorController implements AsyncController {
+  topic = process.env.TOPIC_BOOKINGS!
+
   async handle(receivedMessage: Message): Promise<void> {
-    Logger.info('ErrorController async controller received message', receivedMessage)
+    Logger.debug('ErrorController async controller received message', receivedMessage)
 
     throw new Error('ErrorController Error!')
-  }
-
-  topic(): string {
-    return process.env.TOPIC_BOOKINGS!
   }
 }

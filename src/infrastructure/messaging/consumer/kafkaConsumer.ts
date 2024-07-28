@@ -8,6 +8,7 @@ import AsyncController from '../../base/api/asyncController'
 import Logger from '../../log/logger'
 import KafkaSender from '../sender/kafkaSender'
 import Consumer, { ConsumerEvents } from './consumer'
+import { ConsumerMode, KafkaConsumerOpts } from './kafkaConsumerOpts'
 
 interface ProcessMessage {
   controller: AsyncController
@@ -19,35 +20,14 @@ interface ProcessMessage {
   topic: string
 }
 
-export interface KafkaConsumerOpts {
-  batchSize?: 'LIMITS_ARE_FOR_MUNICIPALITIES' | number
-  brookers: string[]
-  controllers: AsyncController[]
-  groupId: string;
-  minMessageRetries?: number
-  sender: KafkaSender
-  topics: string[];
-}
-
 export default class KafkaConsumer extends EventEmitter implements Consumer {
-  static assertOptions = async (options: KafkaConsumerOpts): Promise<void> => {
-    if (!options.groupId) {
-      throw new Error('Missing option groupId')
-    }
-  }
-
-  static create = async (options: KafkaConsumerOpts): Promise<Consumer> => {
-    await KafkaConsumer.assertOptions(options)
-    const obj = new KafkaConsumer(options)
-
-    return obj
-  }
-
   batchSize: number
 
   brookers: string[]
 
   consumer: KConsumer
+
+  consumerMode: ConsumerMode
 
   controllers: AsyncController[]
 
@@ -59,18 +39,16 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
   stopped: boolean
 
-  topics: string[]
-
   private constructor(options: KafkaConsumerOpts) {
     super()
     process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
     this.brookers = options.brookers
     this.stopped = true
     this.groupId = options.groupId
-    this.topics = options.topics
     this.controllers = options.controllers
     this.minMessageRetries = options.minMessageRetries ?? 4
     this.sender = options.sender
+    this.consumerMode = options.consumerMode ?? ConsumerMode.PROMISES
 
     if (options.batchSize === 'LIMITS_ARE_FOR_MUNICIPALITIES') {
       this.batchSize = Number.MAX_SAFE_INTEGER
@@ -80,11 +58,39 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
     const kafka = new Kafka({
       brokers: this.brookers,
+      clientId: options.clientId,
+      connectionTimeout: options.connectionTimeout,
       logLevel: logLevel.WARN,
-      // sessionTimeout: <Number>,
+      requestTimeout: options.requestTimeout,
     })
 
-    this.consumer = kafka.consumer({ groupId: this.groupId })
+    this.consumer = kafka.consumer({
+      groupId: this.groupId,
+      sessionTimeout: options.sessionTimeout,
+    })
+  }
+
+  static async assertOptions(options: KafkaConsumerOpts): Promise<void> {
+    if (!options.groupId) {
+      throw new Error('Missing option groupId')
+    }
+
+    if (!options.brookers.length) {
+      throw new Error('There must be at least one broker')
+    }
+
+    const topics = options.controllers.map((controller) => controller.topic)
+    const uniqueTopics = Array.from(new Set(topics))
+    if (options.controllers.length !== uniqueTopics.length) {
+      throw new Error('Some controllers are consuming the same topic. Check your configuration!')
+    }
+  }
+
+  static async create(options: KafkaConsumerOpts): Promise<Consumer> {
+    await KafkaConsumer.assertOptions(options)
+    const obj = new KafkaConsumer(options)
+
+    return obj
   }
 
   async #disconnect(): Promise<void> {
@@ -92,7 +98,7 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
       try {
         await this.consumer?.stop()
       } catch (error) {
-        Logger.error('Error stopping consumer', error)
+        Logger.error('Error stopping Kafka Consumer', error)
       }
     }
 
@@ -112,9 +118,9 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     this.emit('messageReceived', rawMessage)
 
     await promiseRetry(async (retry, number) => {
-      Logger.debug(`Attempt number ${number} on topic: ${data.topic}`)
-
       try {
+        this.emit('startProcessingMessage', number, rawMessage)
+
         await data.controller.handle(messageData)
 
         this.emit('messageProcessed', rawMessage)
@@ -124,7 +130,7 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
       }
     }, { retries: this.minMessageRetries }).catch(async () => {
       await this.sender.sendToDLQ(rawMessage, data.topic)
-      Logger.error(`Offset ${data.message.offset} has been put on DLQ`)
+      Logger.error(`Message from ${data.topic} has been put on DLQ. Offset: ${data.message.offset}.`)
     })
 
     data.resolveOffset(data.message.offset)
@@ -167,8 +173,9 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     this.emit('started')
 
     if (this.stopped) {
+      const topics = this.controllers.map((controller) => controller.topic)
       await this.consumer.connect()
-      await this.consumer.subscribe({ topics: this.topics })
+      await this.consumer.subscribe({ topics })
       await this.consumer.run({
         eachBatch: async ({
           batch,
@@ -177,26 +184,41 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
           isStale,
           resolveOffset,
         }) => {
-          const controller = this.controllers.find((c) => c.topic() === batch.topic)
+          const controller = this.controllers.find((c) => c.topic === batch.topic)
 
           if (controller) {
-            const batchMessages = batch.messages.slice(0, this.batchSize)
+            if (this.consumerMode === ConsumerMode.PROMISES) {
+              const batchMessages = batch.messages.slice(0, this.batchSize)
 
-            const promises = batchMessages.map(
-              async (message) => this.#processMessage({
-                controller,
-                heartbeat,
-                isRunning,
-                isStale,
-                message,
-                resolveOffset,
-                topic: batch.topic,
-              }),
-            )
+              const promises = batchMessages.map(
+                async (message) => this.#processMessage({
+                  controller,
+                  heartbeat,
+                  isRunning,
+                  isStale,
+                  message,
+                  resolveOffset,
+                  topic: batch.topic,
+                }),
+              )
 
-            Logger.warn(`promises to be executed Length: ${promises.length}`)
-
-            await Promise.all(promises)
+              await Promise.all(promises)
+            } else {
+              // SEQUENTIAL
+              // eslint-disable-next-line no-restricted-syntax
+              for (const message of batch.messages) {
+                // eslint-disable-next-line no-await-in-loop
+                await this.#processMessage({
+                  controller,
+                  heartbeat,
+                  isRunning,
+                  isStale,
+                  message,
+                  resolveOffset,
+                  topic: batch.topic,
+                })
+              }
+            }
           }
         },
         eachBatchAutoResolve: false,
@@ -209,9 +231,5 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
     this.stopped = true
     this.emit('stopped')
-  }
-
-  get isRunning(): boolean {
-    return !this.stopped
   }
 }

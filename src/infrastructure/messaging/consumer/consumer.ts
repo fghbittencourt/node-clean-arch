@@ -9,6 +9,7 @@ export interface ConsumerEvents {
   messageProcessed: [MessageData];
   messageReceived: [MessageData];
   processingError: [Error, MessageData];
+  startProcessingMessage: [number, MessageData],
   started: [];
   stopped: [];
   timeoutError: [Error, MessageData];
@@ -19,7 +20,6 @@ export default interface Consumer {
     event: T,
     handler: { (...args: unknown[]): void }
   ): void;
-  get isRunning(): boolean;
   removeHandler<T extends keyof ConsumerEvents>(event: T): void;
   start(): Promise<void>;
   stop(): Promise<void>;

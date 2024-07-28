@@ -28,18 +28,14 @@ export default async (appName: string): Promise<void> => {
   const somethingController = new SomethingController()
   const controllers = [controllerEmitTickets, somethingController]
 
-  Logger.info(`Worker ${appName} initializing...`)
-
-  // Sender
-
   // Consumer
   const consumer = await KafkaConsumer.create(
     {
       brookers: process.env.KAFKA_BROKERS?.split(',') || [],
+      clientId: process.env.APP_NAME!,
       controllers,
       groupId: appName,
       sender: container.resolve(KafkaSender),
-      topics: controllers.map((c) => c.topic()),
     },
   )
 
@@ -52,8 +48,12 @@ export default async (appName: string): Promise<void> => {
     Logger.error('Worker - processingError', err)
   })
 
+  consumer.addHandler('startProcessingMessage', (number, message) => {
+    Logger.debug(`Attempting no. ${number} to process message.`, message)
+  })
+
   consumer.addHandler('messageProcessed', (message) => {
-    Logger.info('Worker - Message Processed', message)
+    Logger.debug('Worker - Message Processed', message)
   })
 
   consumer.addHandler('started', () => {
