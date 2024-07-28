@@ -1,30 +1,33 @@
-// import { faker } from '@faker-js/faker'
+import { faker } from '@faker-js/faker'
 
-// import AsyncController from '../../../../../src/infrastructure/base/api/asyncController'
-// import KafkaConsumer from '../../../../../src/infrastructure/messaging/consumer/kafkaConsumer'
+import AsyncController from '../../../../../src/infrastructure/base/api/asyncController'
+import KafkaConsumer from '../../../../../src/infrastructure/messaging/consumer/kafkaConsumer'
+import mockedSender from '../sender/mockedSender'
 
-// jest.mock('kafkajs')
+jest.mock('kafkajs')
 
-// describe('PubSubConsumer Testing', () => {
-//   it('should start and stop properly', async () => {
-//     const opts = {
-//       brookers: [faker.internet.url()],
-//       controllers: jest.fn() as unknown as AsyncController[],
-//       groupId: faker.string.sample(),
-//       topics: ['topic1'],
-//     }
-//     const consumer = await KafkaConsumer.create(opts)
+const testController = (): AsyncController => ({
+  handle: jest.fn(),
+  topic: faker.internet.domainWord(),
+})
 
-//     consumer.consumer = jest.fn()
+describe('PubSubConsumer Testing', () => {
+  it('should start and stop properly', async () => {
+    const opts = {
+      brookers: ['localhost:19092'],
+      clientId: faker.string.sample(),
+      controllers: [testController()],
+      groupId: faker.string.sample(),
+      sender: mockedSender(),
+      topics: ['topic1'],
+    }
+    const consumer = await KafkaConsumer.create(opts)
 
-//     const bStopped = consumer.isRunning
-//     await consumer.start()
-//     const bStarted = consumer.isRunning
-//     await consumer.stop()
-//     const bStopped2 = consumer.isRunning
+    await consumer.start()
+    await consumer.stop()
 
-//     expect(bStopped).toBeFalsy()
-//     expect(bStarted).toBeTruthy()
-//     expect(bStopped2).toBeFalsy()
-//   })
-// })
+    // expect(bStopped).toBeFalsy()
+    // expect(bStarted).toBeTruthy()
+    // expect(bStopped2).toBeFalsy()
+  })
+})

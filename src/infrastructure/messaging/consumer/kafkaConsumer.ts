@@ -6,7 +6,7 @@ import promiseRetry from 'promise-retry'
 
 import AsyncController from '../../base/api/asyncController'
 import Logger from '../../log/logger'
-import KafkaSender from '../sender/kafkaSender'
+import Sender from '../sender/sender'
 import Consumer, { ConsumerEvents } from './consumer'
 import { ConsumerMode, KafkaConsumerOpts } from './kafkaConsumerOpts'
 
@@ -35,13 +35,23 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
 
   minMessageRetries: number
 
-  sender: KafkaSender
+  sender: Sender
 
   stopped: boolean
 
   private constructor(options: KafkaConsumerOpts) {
     super()
-    process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
+    const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2']
+    signalTraps.forEach((type) => {
+      process.once(type, async () => {
+        try {
+          await this.#disconnect(type)
+        } finally {
+          process.kill(process.pid, type)
+        }
+      })
+    })
+
     this.brookers = options.brookers
     this.stopped = true
     this.groupId = options.groupId
@@ -93,16 +103,18 @@ export default class KafkaConsumer extends EventEmitter implements Consumer {
     return obj
   }
 
-  async #disconnect(): Promise<void> {
+  async #disconnect(signal? : string): Promise<void> {
     if (!this.stopped) {
       try {
         await this.consumer?.stop()
+        await this.consumer?.disconnect()
       } catch (error) {
         Logger.error('Error stopping Kafka Consumer', error)
       }
     }
 
-    process.exit(1)
+    process.kill(process.pid, signal)
+    // process.exit(1)
   }
 
   async #processMessage(data: ProcessMessage) {

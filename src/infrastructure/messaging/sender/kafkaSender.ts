@@ -8,27 +8,9 @@ import Sender from './sender'
 
 @injectable()
 export default class KafkaSender implements Sender {
-  #dlqSufix : string
+  #dlqSufix = '.DLQ'
 
   #producer?: Producer
-
-  constructor() {
-    this.#dlqSufix = '.DLQ'
-    process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
-  }
-
-  async #disconnect() : Promise<void> {
-    if (this.#producer) {
-      try {
-        const producer = await this.#getProducer()
-        await producer.disconnect()
-
-        Logger.debug('Disconnected from Kafka')
-      } catch (error) {
-        Logger.warn('Error while disconnecting from Kafka', { error })
-      }
-    }
-  }
 
   async #getProducer(): Promise<Producer> {
     if (!this.#producer) {

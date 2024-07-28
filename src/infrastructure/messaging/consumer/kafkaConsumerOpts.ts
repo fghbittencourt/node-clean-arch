@@ -1,5 +1,5 @@
 import AsyncController from '../../base/api/asyncController'
-import KafkaSender from '../sender/kafkaSender'
+import Sender from '../sender/sender'
 
 export enum ConsumerMode {
   PROMISES = 'PROMISES',
@@ -24,6 +24,6 @@ export interface KafkaConsumerOpts {
   groupId: string;
   minMessageRetries?: number
   requestTimeout?: number
-  sender: KafkaSender
+  sender: Sender
   sessionTimeout?: number
 }

@@ -6,7 +6,7 @@ import KafkaConsumer from '../infrastructure/messaging/consumer/kafkaConsumer'
 import KafkaSender from '../infrastructure/messaging/sender/kafkaSender'
 import bootstrapper from './bootstrapper'
 import EmitTicketsController from './tickets/emitTicketsController'
-import SomethingController from './tickets/errorController'
+import ErrorController from './tickets/errorController'
 
 const getWorkerPath = async (): Promise<string> => {
   const env = process.env.NODE_ENV
@@ -25,8 +25,8 @@ export default async (appName: string): Promise<void> => {
 
   // Controllers
   const controllerEmitTickets = new EmitTicketsController()
-  const somethingController = new SomethingController()
-  const controllers = [controllerEmitTickets, somethingController]
+  const errorController = new ErrorController()
+  const controllers = [controllerEmitTickets, errorController]
 
   // Consumer
   const consumer = await KafkaConsumer.create(
