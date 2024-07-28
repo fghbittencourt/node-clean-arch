@@ -14,10 +14,11 @@ export default class KafkaSender implements Sender {
     if (!this.#producer) {
       const broker = new Kafka({
         brokers: process.env.KAFKA_BROKERS!.split(', '),
-        clientId: process.env.KAFKA_GROUP_ID,
-        logLevel: logLevel.INFO,
-        //   sessionTimeout: <Number>,
-        // TODO put timeout here and other variables
+        clientId: process.env.APP_NAME!,
+        // TODO threat this properly
+        // connectionTimeout: process.env.KAFKA_CONNECTION_TIMEOUT,
+        logLevel: logLevel.WARN,
+        // requestTimeout: process.env.KAFKA_REQUEST_TIMEOUT,
       })
 
       this.#producer = broker.producer()
@@ -43,8 +44,9 @@ export default class KafkaSender implements Sender {
 
       await producer.send({
         messages: [{ value: JSON.stringify(messageToBeSend) }],
+        // TODO threat this properly
+        // timeout: process.env.KAFKA_PRODUCER_TIMEOUT,
         topic: message.topic,
-      // TODO put timeout here
       })
 
       Logger.debug(
@@ -69,7 +71,8 @@ export default class KafkaSender implements Sender {
       await producer.send({
         messages: [{ value: JSON.stringify(rawMessage) }],
         topic,
-      // TODO put timeout here
+        // TODO threat this properly
+        // timeout: process.env.KAFKA_PRODUCER_TIMEOUT,
       })
 
       Logger.debug(

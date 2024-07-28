@@ -19,7 +19,7 @@ const getWorkerPath = async (): Promise<string> => {
   return `./dist/${basePath}`
 }
 
-export default async (appName: string): Promise<void> => {
+export default async (): Promise<void> => {
   // First we initiate the bootstrapper
   await bootstrapper(container)
 
@@ -34,7 +34,7 @@ export default async (appName: string): Promise<void> => {
       brookers: process.env.KAFKA_BROKERS?.split(',') || [],
       clientId: process.env.APP_NAME!,
       controllers,
-      groupId: appName,
+      groupId: process.env.KAFKA_GROUP_ID!,
       sender: container.resolve(KafkaSender),
     },
   )
