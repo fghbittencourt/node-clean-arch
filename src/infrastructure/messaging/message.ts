@@ -1,3 +1,4 @@
 export default interface Message {
-  readonly topic : string
+   messageType : string
+   topic : string
 }

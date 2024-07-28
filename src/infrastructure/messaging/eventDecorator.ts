@@ -26,7 +26,7 @@ export default class CloudEventDecorator {
       specversion: '1.0',
       time: new Date().toISOString(),
       type: `${process.env.EVENT_SOURCE_PREFIX}.${process.env.APP_NAME}.${
-        this.#message.constructor.name
+        this.#message.messageType
       }`,
     }
 

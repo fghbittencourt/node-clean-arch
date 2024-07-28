@@ -39,27 +39,6 @@ export default async (appName: string): Promise<void> => {
     },
   )
 
-  // Setting up loggers
-  consumer.addHandler('timeoutError', (err) => {
-    Logger.error('Worker - timeoutError', err)
-  })
-
-  consumer.addHandler('processingError', (err) => {
-    Logger.error('Worker - processingError', err)
-  })
-
-  consumer.addHandler('startProcessingMessage', (number, message) => {
-    Logger.debug(`Attempting no. ${number} to process message.`, message)
-  })
-
-  consumer.addHandler('messageProcessed', (message) => {
-    Logger.debug('Worker - Message Processed', message)
-  })
-
-  consumer.addHandler('started', () => {
-    Logger.info('Worker - started')
-  })
-
   // Health check
   const workerPath = await getWorkerPath()
   const worker = new Worker(workerPath)

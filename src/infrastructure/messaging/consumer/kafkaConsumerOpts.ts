@@ -22,7 +22,7 @@ export interface KafkaConsumerOpts {
   consumerMode?: ConsumerMode
   controllers: AsyncController[]
   groupId: string;
-  minMessageRetries?: number
+  messageRetries?: number
   requestTimeout?: number
   sender: Sender
   sessionTimeout?: number

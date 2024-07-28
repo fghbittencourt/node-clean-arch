@@ -8,8 +8,6 @@ import Sender from './sender'
 
 @injectable()
 export default class KafkaSender implements Sender {
-  #dlqSufix = '.DLQ'
-
   #producer?: Producer
 
   async #getProducer(): Promise<Producer> {
@@ -28,22 +26,16 @@ export default class KafkaSender implements Sender {
     return this.#producer
   }
 
-  async #sendMessage(
-    message: Message,
-    topic: string,
-    decorateMessageAsCloudEvent = true,
-  ): Promise<void> {
-    if (!topic) {
+  async send(message: Message): Promise<void> {
+    if (!message.topic) {
       throw new Error('Topic is required to send message. Check property "topic" on your event/command')
     }
-
-    let messageToBeSend : unknown = message
-    if (decorateMessageAsCloudEvent) {
-      const decorator = new CloudEventDecorator(message)
-      const cloudEvent = await decorator.decorateEvent()
-
-      messageToBeSend = cloudEvent
+    if (!message.messageType) {
+      throw new Error('Message type is required to send message. Check property "messageType" on your event/command')
     }
+
+    const decorator = new CloudEventDecorator(message)
+    const messageToBeSend = await decorator.decorateEvent()
 
     try {
       const producer = await this.#getProducer()
@@ -51,12 +43,12 @@ export default class KafkaSender implements Sender {
 
       await producer.send({
         messages: [{ value: JSON.stringify(messageToBeSend) }],
-        topic,
-        // TODO put timeout here
+        topic: message.topic,
+      // TODO put timeout here
       })
 
       Logger.debug(
-        `Kafka Message Sender - ${message.constructor.name} sent to topic ${topic}`,
+        `Kafka Message Sender - ${message.messageType} sent to topic ${message.topic}`,
         message,
       )
     } catch (error) {
@@ -65,12 +57,28 @@ export default class KafkaSender implements Sender {
     }
   }
 
-  async send(message: Message): Promise<void> {
-    await this.#sendMessage(message, message.topic)
-  }
+  async sendRaw(rawMessage: unknown, topic: string): Promise<void> {
+    if (!topic) {
+      throw new Error('Topic is required to send message.')
+    }
 
-  async sendToDLQ(rawMessage: Message, originalTopic: string): Promise<void> {
-    const dlqTopic = `${originalTopic}${this.#dlqSufix}`
-    await this.#sendMessage(rawMessage, dlqTopic, false)
+    try {
+      const producer = await this.#getProducer()
+      await producer.connect()
+
+      await producer.send({
+        messages: [{ value: JSON.stringify(rawMessage) }],
+        topic,
+      // TODO put timeout here
+      })
+
+      Logger.debug(
+        `Kafka Message Sender - rawMessage sent to topic ${topic}`,
+        rawMessage,
+      )
+    } catch (error) {
+      Logger.error('Error while sending rawMessage to Kafka', { error })
+      throw error
+    }
   }
 }
