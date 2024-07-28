@@ -39,12 +39,14 @@ export default async (): Promise<void> => {
     },
   )
 
-  // Health check
-  const workerPath = await getWorkerPath()
-  const worker = new Worker(workerPath)
-  worker.on('error', (err) => {
-    Logger.error('Worker - healthRouteError', err)
-  })
+  // Health check (for conteiner deployment)
+  if (process.env.KAFKA_WORKER_HEALTH_CHECK === 'true') {
+    const workerPath = await getWorkerPath()
+    const worker = new Worker(workerPath)
+    worker.on('error', (err) => {
+      Logger.error('Worker - healthRouteError', err)
+    })
+  }
 
   // Start the worker process
   await consumer.start()
