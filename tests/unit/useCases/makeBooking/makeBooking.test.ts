@@ -64,6 +64,7 @@ describe('MakeBooking Testing', () => {
       date: input.date,
       flightNumber: input.flightNumber,
       id: uuid,
+      messageType: 'BookingCreatedEvent',
       status: BookingStatus.CREATED,
       topic: process.env.TOPIC_BOOKINGS!,
     })
@@ -71,6 +72,7 @@ describe('MakeBooking Testing', () => {
       bookingId: uuid,
       date: input.date,
       flightNumber: input.flightNumber,
+      messageType: 'EmitTicketsCommand',
       passengers: input.passengers,
       topic: process.env.TOPIC_EMIT_TICKETS!,
     })
