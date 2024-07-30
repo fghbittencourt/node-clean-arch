@@ -8,9 +8,11 @@ export default class BookingCreatedEvent implements Message {
 
   id: string
 
+  messageType = 'BookingCreatedEvent'
+
   status: BookingStatus
 
-  readonly topic = process.env.TOPIC_BOOKINGS!
+  topic = process.env.TOPIC_BOOKINGS!
 
   constructor(
     id: string,

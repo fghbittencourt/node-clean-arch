@@ -22,8 +22,6 @@ export default class KafkaConsumer {
 
   controllers: AsyncController[]
 
-  groupId: string
-
   messageRetries: number
 
   sender: Sender
@@ -44,7 +42,6 @@ export default class KafkaConsumer {
 
     this.brookers = options.brookers
     this.stopped = true
-    this.groupId = options.groupId
     this.controllers = options.controllers
     this.messageRetries = options.messageRetries ?? 4
     this.sender = options.sender
@@ -58,15 +55,15 @@ export default class KafkaConsumer {
 
     const kafka = new Kafka({
       brokers: this.brookers,
-      clientId: options.clientId,
+      // clientId: options.clientId,
       connectionTimeout: options.connectionTimeout,
       logLevel: logLevel.WARN,
       requestTimeout: options.requestTimeout,
     })
 
     this.consumer = kafka.consumer({
-      groupId: this.groupId,
-      sessionTimeout: options.sessionTimeout,
+      groupId: options.groupId,
+      // sessionTimeout: options.sessionTimeout,
     })
   }
 
@@ -116,6 +113,8 @@ export default class KafkaConsumer {
   ): Promise<void> {
     if (!isRunning() || isStale()) return
 
+    Logger.debug('Consuming message', message)
+
     await kafkaMessageProcessor(
       message,
       this.messageRetries,
@@ -130,8 +129,12 @@ export default class KafkaConsumer {
 
   async start(): Promise<void> {
     const topics = this.controllers.map((controller) => controller.topic)
+    Logger.debug('Starting Kafka Consumer Topics', { topics })
+
     await this.consumer.connect()
+    Logger.debug('Kafka Connected')
     await this.consumer.subscribe({ topics })
+    Logger.debug('Kafka subscribed')
     await this.consumer.run({
       eachBatch: async ({
         batch,
@@ -140,6 +143,7 @@ export default class KafkaConsumer {
         isStale,
         resolveOffset,
       }) => {
+        Logger.debug('Batch', batch)
         const controller = this.controllers.find((c) => c.topic === batch.topic)
 
         if (controller) {

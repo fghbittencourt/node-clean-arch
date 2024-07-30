@@ -12,6 +12,8 @@ export default class EmitTicketsCommand implements Message {
 
   flightNumber: string
 
+  messageType = 'EmitTicketsCommand'
+
   passengers: EmitTicketsCommandPassenger[]
 
   topic = process.env.TOPIC_EMIT_TICKETS!
