@@ -32,7 +32,6 @@ export default async (): Promise<void> => {
   const consumer = await KafkaConsumer.create(
     {
       brookers: process.env.KAFKA_BROKERS?.split(',') || [],
-      clientId: process.env.APP_NAME!,
       controllers,
       groupId: process.env.KAFKA_GROUP_ID!,
       sender: container.resolve(KafkaSender),

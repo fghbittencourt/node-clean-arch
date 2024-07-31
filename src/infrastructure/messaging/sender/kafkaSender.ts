@@ -14,7 +14,7 @@ export default class KafkaSender implements Sender {
     if (!this.#producer) {
       const broker = new Kafka({
         brokers: process.env.KAFKA_BROKERS!.split(', '),
-        clientId: process.env.APP_NAME!,
+        clientId: `${process.env.APP_NAME!}-${process.pid.toString()}`,
         // TODO threat this properly
         // connectionTimeout: process.env.KAFKA_CONNECTION_TIMEOUT,
         logLevel: logLevel.WARN,

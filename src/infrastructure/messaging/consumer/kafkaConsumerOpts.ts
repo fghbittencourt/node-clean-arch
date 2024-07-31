@@ -12,7 +12,6 @@ export interface KafkaConsumerOpts {
    */
   batchSize?: 'LIMITS_ARE_FOR_MUNICIPALITIES' | number
   brookers: string[]
-  clientId: string;
   connectionTimeout?: number
 
   /**
