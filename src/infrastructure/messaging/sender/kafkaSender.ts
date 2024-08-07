@@ -11,14 +11,16 @@ export default class KafkaSender implements Sender {
   #producer?: Producer
 
   async #getProducer(): Promise<Producer> {
+    const connectionTimeout = process.env.KAFKA_CONNECTION_TIMEOUT
+    const requestTimeout = process.env.KAFKA_REQUEST_TIMEOUT
+
     if (!this.#producer) {
       const broker = new Kafka({
         brokers: process.env.KAFKA_BROKERS!.split(', '),
         clientId: `${process.env.APP_NAME!}-${process.pid.toString()}`,
-        // TODO threat this properly
-        // connectionTimeout: process.env.KAFKA_CONNECTION_TIMEOUT,
+        connectionTimeout: connectionTimeout ? Number(connectionTimeout) : undefined,
         logLevel: logLevel.WARN,
-        // requestTimeout: process.env.KAFKA_REQUEST_TIMEOUT,
+        requestTimeout: requestTimeout ? Number(requestTimeout) : undefined,
       })
 
       this.#producer = broker.producer()
@@ -37,6 +39,7 @@ export default class KafkaSender implements Sender {
 
     const decorator = new CloudEventDecorator(message)
     const messageToBeSend = await decorator.decorateEvent()
+    const timeout = process.env.KAFKA_PRODUCER_TIMEOUT
 
     try {
       const producer = await this.#getProducer()
@@ -44,8 +47,7 @@ export default class KafkaSender implements Sender {
 
       await producer.send({
         messages: [{ value: JSON.stringify(messageToBeSend) }],
-        // TODO threat this properly
-        // timeout: process.env.KAFKA_PRODUCER_TIMEOUT,
+        timeout: timeout ? Number(timeout) : undefined,
         topic: message.topic,
       })
 
@@ -64,15 +66,16 @@ export default class KafkaSender implements Sender {
       throw new Error('Topic is required to send message.')
     }
 
+    const timeout = process.env.KAFKA_PRODUCER_TIMEOUT
+
     try {
       const producer = await this.#getProducer()
       await producer.connect()
 
       await producer.send({
         messages: [{ value: JSON.stringify(rawMessage) }],
+        timeout: timeout ? Number(timeout) : undefined,
         topic,
-        // TODO threat this properly
-        // timeout: process.env.KAFKA_PRODUCER_TIMEOUT,
       })
 
       Logger.debug(
