@@ -10,7 +10,6 @@ import UseCaseInput from '../../infrastructure/base/useCase/useCaseInput'
 import UseCaseOutput from '../../infrastructure/base/useCase/useCaseOutput'
 import UseCaseSync from '../../infrastructure/base/useCase/useCaseSync'
 import Logger from '../../infrastructure/log/logger'
-import Publisher from '../../infrastructure/messaging/publisher/publisher'
 import Sender from '../../infrastructure/messaging/sender/sender'
 import EmitTicketsCommand from '../commands/EmitTicketsCommand'
 
@@ -31,7 +30,6 @@ export default class MakeBooking implements UseCaseSync {
     @inject('BookingRepository') public readonly repository: BookingRepository,
     @inject('PassengerRepository') public readonly passengerRepository: PassengerRepository,
     @inject('Sender') public readonly sender: Sender,
-    @inject('Publisher') public readonly publisher: Publisher,
   ) {}
 
   async execute(input: MakeBookingInput): Promise<MakeBookingOutput> {
@@ -59,7 +57,7 @@ export default class MakeBooking implements UseCaseSync {
       await this.repository.save(booking)
 
       // Publishing event
-      await this.publisher.publish(
+      await this.sender.send(
         new BookingCreatedEvent(
           booking.id,
           booking.date,

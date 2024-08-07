@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import ApplicationEvent from './applicationEvent'
+import Message from './message'
 
 export interface CloudEvent {
   data: unknown;
@@ -11,13 +11,13 @@ export interface CloudEvent {
   type: string;
 }
 export default class CloudEventDecorator {
-  #event: ApplicationEvent
+  #message: Message
 
   decorateEvent = async (): Promise<CloudEvent> => {
-    const obj = this.#event
+    const obj = this.#message
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { attributes, topic, ...rest } = obj
+    const { topic, ...rest } = obj
 
     const cloudEvent: CloudEvent = {
       data: rest,
@@ -26,14 +26,14 @@ export default class CloudEventDecorator {
       specversion: '1.0',
       time: new Date().toISOString(),
       type: `${process.env.EVENT_SOURCE_PREFIX}.${process.env.APP_NAME}.${
-        this.#event.constructor.name
+        this.#message.messageType
       }`,
     }
 
     return cloudEvent
   }
 
-  constructor(event: ApplicationEvent) {
-    this.#event = event
+  constructor(message: Message) {
+    this.#message = message
   }
 }

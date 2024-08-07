@@ -1,21 +1,11 @@
 import Logger from '../../log/logger'
-import QueueMessage from '../queueMessage'
+import Message from '../message'
 import Sender from './sender'
 
 export default class DummySender implements Sender {
-  send = async (message: QueueMessage): Promise<void> => {
-    Logger.info(
-      `Dummy Message Sender - ${message.constructor.name} sent`,
-      message,
-    )
-  }
-
-  sendMany = async (
-    message: QueueMessage[],
-    queueName: string,
-  ): Promise<void> => {
-    Logger.info(
-      `Dummy Message Sender - ${message.constructor.name} sent on queue ${queueName}`,
+  send = async (message: Message): Promise<void> => {
+    Logger.debug(
+      `Dummy Message Sender - ${message.messageType} sent`,
       message,
     )
   }

@@ -7,12 +7,13 @@ import Logger from './infrastructure/log/logger'
 
 dotenv.config()
 
-const appName = process.env.APP_NAME ?? process.argv.slice(2)[0];
+const appType = process.env.APP_TYPE ?? process.argv.slice(2)[0]
+const appName = process.env.APP_NAME ?? process.argv.slice(2)[1];
 
 (async (): Promise<void> => {
-  Logger.info(`Initializing application "${appName}"`)
+  Logger.info(`Initializing application ${appName} -> ${appType}`)
 
-  await applicationStarter(appName)
+  await applicationStarter(appType, appName)
 })().catch((err) => {
   Logger.error(`FATAL ERROR: ${err}`)
 })

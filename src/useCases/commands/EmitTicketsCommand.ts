@@ -1,22 +1,22 @@
-import Command from '../../infrastructure/messaging/command'
+import Message from '../../infrastructure/messaging/message'
 
 type EmitTicketsCommandPassenger = {
   fullName: string;
   passportNumber: string;
 };
 
-export default class EmitTicketsCommand extends Command {
+export default class EmitTicketsCommand implements Message {
   bookingId: string
-
-  readonly commandName = 'EmitTicketsCommand'
 
   date: Date
 
   flightNumber: string
 
+  messageType = 'EmitTicketsCommand'
+
   passengers: EmitTicketsCommandPassenger[]
 
-  readonly queueName = process.env.QUEUE_EMIT_TICKETS!
+  topic = process.env.TOPIC_EMIT_TICKETS!
 
   constructor(
     bookingId: string,
@@ -24,8 +24,6 @@ export default class EmitTicketsCommand extends Command {
     passengers: EmitTicketsCommandPassenger[],
     flightNumber: string,
   ) {
-    super()
-
     this.bookingId = bookingId
     this.date = date
     this.passengers = passengers

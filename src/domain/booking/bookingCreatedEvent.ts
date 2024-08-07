@@ -1,16 +1,18 @@
-import ApplicationEvent from '../../infrastructure/messaging/applicationEvent'
+import Message from '../../infrastructure/messaging/message'
 import BookingStatus from './bookingStatus'
 
-export default class BookingCreatedEvent extends ApplicationEvent {
+export default class BookingCreatedEvent implements Message {
   date: Date
 
   flightNumber: string
 
   id: string
 
+  messageType = 'BookingCreatedEvent'
+
   status: BookingStatus
 
-  readonly topic = process.env.TOPIC_BOOKINGS!
+  topic = process.env.TOPIC_BOOKINGS!
 
   constructor(
     id: string,
@@ -18,7 +20,6 @@ export default class BookingCreatedEvent extends ApplicationEvent {
     status: BookingStatus,
     flightNumber: string,
   ) {
-    super()
     this.id = id
     this.date = date
     this.status = status
