@@ -1,78 +1,66 @@
-# Node Clean Arch - Barão
+# Node Clean Arch Example
 
-**Description**: This is an sample project about how to build a microservice application in Node/Typescript using DDD (Domain Driven Design) and Clean Architecture.
+[![Build](https://github.com/fghbittencourt/node-clean-arch/actions/workflows/CI.yml/badge.svg)](https://github.com/fghbittencourt/node-clean-arch/actions/workflows/CI.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Put a meaningful, short, plain-language description of what
-this project is trying to accomplish and why it matters.
-Describe the problem(s) this project solves.
-Describe how this software can improve the lives of its audience.
+The objective of this project is to serve as a robust and adaptable example of Domain-Driven Design (DDD) and Clean Architecture, using Node.JS (with TypeScript). It aims mainly on maintainability, scalability, and testability.
 
-Other things to include:
+Additionally, it can be used as a template or starting point for developing new microservices, providing a production-tested foundation.
 
-- **Technology stack**: Indicate the technological nature of the software, including primary programming language(s) and whether the software is intended as standalone or as a module in a framework or other ecosystem.
-- **Status**: Alpha, Beta, 1.1, etc. It's OK to write a sentence, too. The goal is to let interested people know where this project is at. This is also a good place to link to the Changelog.
-- **Links to production or demo instances**
-- Describe what sets this apart from related-projects. Linking to another doc or page is OK if this can't be expressed in a sentence or two.
+If you find this project useful, please give it a star! ⭐
 
-**Screenshot**: If the software has visual components, place a screenshot after the description; e.g.,
+## Getting Started
 
-![](https://raw.githubusercontent.com/cfpb/open-source-project-template/main/screenshot.png)
+The following prerequisites are required to build and run the solution:
 
-## Dependencies
+| Dependency | Version |
+| -------------- | -------------- |
+| [Node JS](https://nodejs.org/) | iron-alpine |
+| [Pnpm](https://pnpm.io/installation) | 9.6.0 |
+| [Docker](https://docs.docker.com/engine/install/) | 27 |
 
-Describe any dependencies that must be installed for this software to work.
-This includes programming languages, databases or other storage mechanisms, build tools, frameworks, and so forth.
-If specific versions of other software are required, or known not to work, call that out.
+To start the application, run the following command, which builds and runs the Docker container with the API:
 
-## Installation
+`make docker.api.run`
 
-Detailed instructions on how to install, configure, and get the project running.
-This should be frequently tested to ensure reliability.
+Once the container is up, the API will be accessible at `http://localhost:4500/docs`.
+To show the complete list of commands, run `make`
 
-## Configuration
+## Technology stack
 
-If the software is configurable, describe it in detail, either here or in other documentation to which you link.
+The programming language is **TypeScript**, which makes more sense if you are focusing on maintainability. For the database, **PostgreSQL** was chosen due to its popularity, and for messaging **Kafka** with **RedPanda** to make it easy to see the messages being sent.
 
-## Usage
+Once you run `make docker.api.run` you can access RedPanda on `http://localhost:8080/`
 
-Show users how to use the software.
-Be specific.
-Use appropriate formatting when showing code snippets.
+For the web server, it is using [Fastify](https://fastify.dev/). In my research, I felt it was easier to implement the API layer, compared to Express (which is more coupled). Anyway, it is not that relevant because once we are using Clean Architecture, the web framework can be changed easily. Check out the list:
 
-## How to test the software
+- [Node.js](https://nodejs.org/)
+- [TypeORM](https://typeorm.io/)
+- [Fastify](https://fastify.dev)
+- [KafkaJS](https://kafka.js.org/)
+- [Tsyringe](https://github.com/microsoft/tsyringe)
+- [Winston](https://github.com/winstonjs/winston)
+- [Zod](https://zod.dev/)
 
-If the software includes automated tests, detail how to run those tests.
+## Testing
 
-## Known issues
+All layers are covered in tests. To run tests locally, run `pnpm install` and then `pnpm test`. To run tests in docker, run `make test`.
 
-Document any known significant shortcomings with the software.
+## Status
 
-## Getting help
+This project is actively under development. Planned features include:
 
-Instruct users how to get help with this software; this might include links to an issue tracker, wiki, mailing list, etc.
+- New endpoints/workers for additional use cases
+- Experimentation with ZeroMQ for messaging
+- A NoSQL implementation for the repository layer
 
-**Example**
+## Licensing info
 
-If you have questions, concerns, bug reports, etc, please file an issue in this repository's Issue Tracker.
+This project is licensed under the MIT License. See the [license](LICENSE) file for details.
 
-## Getting involved
+## References
 
-This section should detail why people should get involved and describe key areas you are
-currently focusing on; e.g., trying to get feedback on features, fixing certain bugs, building
-important pieces, etc.
+The following resources were instrumental in shaping this project’s architecture and design decisions:
 
-General instructions on _how_ to contribute should be stated with a link to [CONTRIBUTING](CONTRIBUTING.md).
-
----
-
-## Open source licensing info
-
-. [LICENSE](LICENSE)
-
----
-
-## Credits and references
-
-1. Projects that inspired you
-2. Related projects
-3. Books, papers, talks, or other sources that have meaningful impact or influence on this project
+- [.NET Microservices: Architecture for Containerized .NET Applications](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/)
+- [BOOK Domain-Driven Design: Tackling Complexity in the Heart of Software](https://www.amazon.com.br/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=A1ZZFT5FULY4LN)
+- [BOOK Clean Architecture: A Craftsman's Guide to Software Structure and Design (Robert C. Martin Series)](https://www.amazon.com.br/Clean-Architecture-Craftsmans-Software-Structure-ebook/dp/B075LRM681/ref=sr_1_2?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3MOWMC1Q9J6V0&dib=eyJ2IjoiMSJ9.1Cmo0ehrUbyITToGjbyWM08zEkGDLKeal5COPoZJXe69vP7nRbEIfpymKCE-yG1d5EP34YaVfY0BK2MlU0337dbYyXz9h2zw6LQhQEK27LN-HWI5JwDd-63bsbIhPwg_UJag8L7FGMR6SuDq5MXpaJd-z_sS2qk-AZ3ZrqI1wwBQl1n56u2Vb_zwgr-pxEpuvakTVi-p-V6CZPqgApArwt2zYXmsG5a_Fh2NmQbhXZ9hSTTS-Fh0EOKD39d66s2YS-l1-9CjHkKsOajep5iv0uNFSfAzM7_UpzSxmn75weQ.6EWaFg3ssXYvZ3h_Yg9coTvUYoI-BgAbKGD_b92grbU&dib_tag=se&keywords=clean+architecture&qid=1728760452&sprefix=clean+architecture+%2Caps%2C274&sr=8-2)
