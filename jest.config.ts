@@ -4,7 +4,6 @@ export default {
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: ['node_modules/', 'tests/', 'repositories/'],
   coverageReporters: ['text'],
-  preset: 'ts-jest',
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   setupFilesAfterEnv: ['./tests/jest.setup.ts'],
   testEnvironment: 'node',
