@@ -1,4 +1,4 @@
-import { Kafka, Producer, logLevel } from 'kafkajs'
+import { Kafka, logLevel, Producer } from 'kafkajs'
 import { injectable } from 'tsyringe'
 
 import Logger from '../../log/logger'
@@ -9,25 +9,6 @@ import Sender from './sender'
 @injectable()
 export default class KafkaSender implements Sender {
   #producer?: Producer
-
-  async #getProducer(): Promise<Producer> {
-    const connectionTimeout = process.env.KAFKA_CONNECTION_TIMEOUT
-    const requestTimeout = process.env.KAFKA_REQUEST_TIMEOUT
-
-    if (!this.#producer) {
-      const broker = new Kafka({
-        brokers: process.env.KAFKA_BROKERS!.split(', '),
-        clientId: `${process.env.APP_NAME!}-${process.pid.toString()}`,
-        connectionTimeout: connectionTimeout ? Number(connectionTimeout) : undefined,
-        logLevel: logLevel.WARN,
-        requestTimeout: requestTimeout ? Number(requestTimeout) : undefined,
-      })
-
-      this.#producer = broker.producer()
-    }
-
-    return this.#producer
-  }
 
   async send(message: Message): Promise<void> {
     if (!message.topic) {
@@ -86,5 +67,24 @@ export default class KafkaSender implements Sender {
       Logger.error('Error while sending rawMessage to Kafka', { error })
       throw error
     }
+  }
+
+  async #getProducer(): Promise<Producer> {
+    const connectionTimeout = process.env.KAFKA_CONNECTION_TIMEOUT
+    const requestTimeout = process.env.KAFKA_REQUEST_TIMEOUT
+
+    if (!this.#producer) {
+      const broker = new Kafka({
+        brokers: process.env.KAFKA_BROKERS!.split(', '),
+        clientId: `${process.env.APP_NAME!}-${process.pid.toString()}`,
+        connectionTimeout: connectionTimeout ? Number(connectionTimeout) : undefined,
+        logLevel: logLevel.WARN,
+        requestTimeout: requestTimeout ? Number(requestTimeout) : undefined,
+      })
+
+      this.#producer = broker.producer()
+    }
+
+    return this.#producer
   }
 }

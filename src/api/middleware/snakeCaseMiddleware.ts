@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyReply, FastifyRequest } from 'fastify'
 
-function convertObjectKeys(obj: any): any {
+const convertObjectKeys = (obj: any): any => {
   if (Array.isArray(obj)) {
     return obj.map(convertObjectKeys)
   } if (obj !== null && typeof obj === 'object') {
