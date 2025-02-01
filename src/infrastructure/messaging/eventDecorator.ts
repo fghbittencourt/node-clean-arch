@@ -13,6 +13,10 @@ export interface CloudEvent {
 export default class CloudEventDecorator {
   #message: Message
 
+  constructor(message: Message) {
+    this.#message = message
+  }
+
   decorateEvent = async (): Promise<CloudEvent> => {
     const obj = this.#message
 
@@ -31,9 +35,5 @@ export default class CloudEventDecorator {
     }
 
     return cloudEvent
-  }
-
-  constructor(message: Message) {
-    this.#message = message
   }
 }

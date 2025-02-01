@@ -1,5 +1,5 @@
 import {
-  Consumer as KConsumer, Kafka, KafkaMessage, logLevel,
+  Kafka, KafkaMessage, Consumer as KConsumer, logLevel,
 } from 'kafkajs'
 
 import AsyncController from '../../base/api/asyncController'
@@ -90,41 +90,6 @@ export default class KafkaConsumer {
     return obj
   }
 
-  async #disconnect(signal? : string): Promise<void> {
-    if (!this.stopped) {
-      try {
-        await this.consumer?.stop()
-        await this.consumer?.disconnect()
-      } catch (error) {
-        Logger.error('Error stopping Kafka Consumer', error)
-      }
-    }
-    process.kill(process.pid, signal)
-  }
-
-  async #processMessage(
-    controller: AsyncController,
-    heartbeat: () => Promise<void>,
-    isRunning: () => boolean,
-    isStale: () => boolean,
-    message: KafkaMessage,
-    resolveOffset: (offset: string) => void,
-    topic: string,
-  ): Promise<void> {
-    if (!isRunning() || isStale()) return
-
-    await kafkaMessageProcessor(
-      message,
-      this.messageRetries,
-      controller,
-      this.sender,
-      topic,
-    )
-
-    resolveOffset(message.offset)
-    await heartbeat()
-  }
-
   async start(): Promise<void> {
     const topics = this.controllers.map((controller) => controller.topic)
     Logger.debug('Starting Kafka Consumer', { topicsSubcribed: topics })
@@ -178,5 +143,40 @@ export default class KafkaConsumer {
       },
       eachBatchAutoResolve: false,
     })
+  }
+
+  async #disconnect(signal? : string): Promise<void> {
+    if (!this.stopped) {
+      try {
+        await this.consumer?.stop()
+        await this.consumer?.disconnect()
+      } catch (error) {
+        Logger.error('Error stopping Kafka Consumer', error)
+      }
+    }
+    process.kill(process.pid, signal)
+  }
+
+  async #processMessage(
+    controller: AsyncController,
+    heartbeat: () => Promise<void>,
+    isRunning: () => boolean,
+    isStale: () => boolean,
+    message: KafkaMessage,
+    resolveOffset: (offset: string) => void,
+    topic: string,
+  ): Promise<void> {
+    if (!isRunning() || isStale()) return
+
+    await kafkaMessageProcessor(
+      message,
+      this.messageRetries,
+      controller,
+      this.sender,
+      topic,
+    )
+
+    resolveOffset(message.offset)
+    await heartbeat()
   }
 }

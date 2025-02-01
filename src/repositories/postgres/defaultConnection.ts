@@ -5,14 +5,10 @@ import Logger from '../../infrastructure/log/logger'
 import AppDataSource from './appDataSource'
 
 export default class DefaultConnection implements DatabaseConnection {
-  #disconnect = async (): Promise<void> => {
-    if (this.datasource) {
-      await this.datasource.destroy()
+  datasource?: DataSource
 
-      Logger.debug('Closed connection to Postgres')
-    }
-
-    process.exit(1)
+  constructor() {
+    process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
   }
 
   connect = async (): Promise<void> => {
@@ -31,9 +27,13 @@ export default class DefaultConnection implements DatabaseConnection {
     }
   }
 
-  datasource?: DataSource
+  #disconnect = async (): Promise<void> => {
+    if (this.datasource) {
+      await this.datasource.destroy()
 
-  constructor() {
-    process.on('SIGINT', this.#disconnect).on('SIGTERM', this.#disconnect)
+      Logger.debug('Closed connection to Postgres')
+    }
+
+    process.exit(1)
   }
 }

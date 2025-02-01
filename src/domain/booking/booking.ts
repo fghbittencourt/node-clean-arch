@@ -1,15 +1,15 @@
 import Passenger from '../passenger/passenger'
 import BookingStatus from './bookingStatus'
 
+export interface Customer {
+  email: string;
+  name: string;
+}
+
 export interface Tickets {
   passenger: Passenger;
   reservationStatus: 'DENIED' | 'OK';
   ticketNumber: string;
-}
-
-export interface Customer {
-  email: string;
-  name: string;
 }
 
 export default class Booking {

@@ -14,7 +14,7 @@ export default class PostgresPassengerRepository implements PassengerRepository 
     this.#repo = manager.getRepository(Passenger)
   }
 
-  async findByFullName(fullName: string): Promise<Passenger | null> {
+  async findByFullName(fullName: string): Promise<null | Passenger> {
     return this.#repo.findOne({ where: { fullName } })
   }
 
