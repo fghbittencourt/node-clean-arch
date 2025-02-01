@@ -14,7 +14,7 @@ The following prerequisites are required to build and run the solution:
 
 | Dependency | Version |
 | -------------- | -------------- |
-| [Node JS](https://nodejs.org/) | iron-alpine |
+| [Node JS](https://nodejs.org/) | jod-alpine |
 | [Pnpm](https://pnpm.io/installation) | 9.6.0 |
 | [Docker](https://docs.docker.com/engine/install/) | 27 |
 
