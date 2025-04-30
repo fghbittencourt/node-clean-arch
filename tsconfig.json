@@ -27,5 +27,9 @@
   ],
   "exclude": [
     "tests"
+  ],
+  "disableTypeChecks": false,
+  "plugins": [
+    "@stryker-mutator/typescript-checker"
   ]
 }

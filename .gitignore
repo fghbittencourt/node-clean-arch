@@ -10,6 +10,8 @@ logs
 .history
 .TODO
 *.log
+.stryker-tmp/
+reports/
 
 # docker compose files
 volumes/
