@@ -9,4 +9,11 @@ export default class DummySender implements Sender {
       message,
     )
   }
+
+  sendRaw = async (rawMessage: unknown, topic: string): Promise<void> => {
+    Logger.debug(
+      `Dummy Message Sender - Message Raw ${topic} sent`,
+      rawMessage,
+    )
+  }
 }

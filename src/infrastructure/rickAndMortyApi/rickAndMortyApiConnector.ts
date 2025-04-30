@@ -7,7 +7,7 @@ export default class RickAndMortyApiConnector implements RickAndMortyApi {
     this.baseUrl = 'https://rickandmortyapi.com/api' // This should not be here ;)
   }
 
-  async getCharacterById(id: string): Promise<Character[]> {
+  async getCharacterById(id: number): Promise<Character[]> {
     const response = await fetch(`${this.baseUrl}/character/${id}`)
     return response.json()
   }

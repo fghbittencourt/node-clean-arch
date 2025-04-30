@@ -2,10 +2,10 @@ import winston from 'winston'
 
 import { levels } from './loggerConfig'
 
-export const consoleMessageFormatter = (info: winston.LogEntry): string => {
+export const consoleMessageFormatter = (info: winston.Logform.TransformableInfo): string => {
   let meta = ''
 
-  if (Object.keys(info.metadata).length > 0) {
+  if (Object.keys(info.metadata as object).length > 0) {
     meta = ` => ${JSON.stringify(info.metadata)}`
   }
 

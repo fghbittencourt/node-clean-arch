@@ -16,5 +16,5 @@ export default async (
 
   if (appType === 'webapi') await webServer(appName, startListening)
 
-  if (appType === 'worker') await worker(appName)
+  if (appType === 'worker') await worker()
 }

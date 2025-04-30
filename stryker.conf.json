@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "pnpm",
+  "reporters": [
+    "html",
+    "clear-text",
+    "progress"
+  ],
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.d.ts"
+  ],
+  "checkers": [
+    "typescript"
+  ],
+  "plugins": [
+    "@stryker-mutator/typescript-checker",
+    "@stryker-mutator/jest-runner"
+  ],
+  "tsconfigFile": "tsconfig.json",
+  "tempDirName": ".stryker-tmp",
+  "commandRunner": {
+    "command": "pnpm test"
+  },
+  "concurrency": 4,
+  "timeoutMS": 5000
+}
