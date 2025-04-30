@@ -81,6 +81,3 @@ describe('Booking testing', () => {
     expect(booking.status).toBe(BookingStatus.CONFIRMED)
   })
 })
-
-// jest.useFakeTimers()
-// jest.setSystemTime(new Date('2025-04-30T12:00:00Z'))
